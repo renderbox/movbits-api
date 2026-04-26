@@ -60,5 +60,6 @@ api_urls = [
 urlpatterns = [
     path("api/", include(api_urls)),
     path("admin/", admin.site.urls),
+    path("r/", include("shortlink.urls")),   # referral redirect — not an API endpoint
     path("", include("core.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
