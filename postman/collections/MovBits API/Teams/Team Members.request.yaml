@@ -1,0 +1,5 @@
+$kind: http-request
+name: Team Members
+url: "{{base_url}}/api/v1/teams/862ccbb9-e77d-460a-804c-358f6cec5c61/members/"
+method: GET
+order: 2512207865278749

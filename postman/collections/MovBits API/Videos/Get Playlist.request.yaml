@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/video/:video_id/playlist.m3u8"
+method: GET
+pathVariables:
+  video_id: d2774383-7689-4061-aedd-56db83b727d4
+order: 3000

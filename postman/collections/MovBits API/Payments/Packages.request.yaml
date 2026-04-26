@@ -1,0 +1,5 @@
+$kind: http-request
+name: Packages
+url: "{{base_url}}/api/v1/billing/credits/packages"
+method: GET
+order: 1772844156013

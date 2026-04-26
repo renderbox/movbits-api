@@ -1,0 +1,5 @@
+$kind: http-request
+name: Chapter Playback Event
+url: "{{base_url}}/api/v1/chapter/playback-event"
+method: POST
+order: 386814732930632

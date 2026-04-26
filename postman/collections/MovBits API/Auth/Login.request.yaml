@@ -1,0 +1,22 @@
+$kind: http-request
+name: Login
+url: "{{base_url}}/api/auth/login/"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{username}}",
+      "password": "{{vault:password}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      let jsonData = pm.response.json();
+
+      pm.environment.set("access_token", jsonData.access);
+      pm.environment.set("refresh_token", jsonData.refresh);
+    language: text/javascript
+order: 1000

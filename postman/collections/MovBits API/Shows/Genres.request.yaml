@@ -1,0 +1,5 @@
+$kind: http-request
+name: Genres
+url: "{{base_url}}/api/v1/shows/genres"
+method: GET
+order: 2086623609954462

@@ -1,0 +1,5 @@
+$kind: http-request
+name: My Teams
+url: "{{base_url}}/api/v1/teams/"
+method: GET
+order: 1772576715246

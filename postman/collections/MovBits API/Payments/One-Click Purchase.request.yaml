@@ -1,0 +1,11 @@
+$kind: http-request
+name: One-Click Purchase
+url: "{{base_url}}/api/v1/billing/one-click"
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "offer_uuid": "9f4344b4-4fe2-447a-b8cd-e29fa8a920fa"
+    }
+order: 2412862950239010

@@ -1,0 +1,22 @@
+$kind: http-request
+name: Chapter Playback Event
+url: "{{base_url}}/api/v1/chapter/playback-event"
+method: POST
+auth:
+  type: bearer
+  bearer:
+    token: "{{access_token}}"
+body:
+  type: json
+  content: |-
+    {
+        "event_type": "chapter.started",
+        "video_id": "some-video-slug",
+        "episode_id": "some-episode-slug",
+        "session_id": "client-session-id",
+        "position_seconds": 0,
+        "duration_seconds": 180,
+        "percent_complete": 0.0,
+        "device_type": "mobile"
+    }
+order: 4000

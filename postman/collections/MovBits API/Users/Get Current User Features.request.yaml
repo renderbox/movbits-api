@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Current User Features
+url: "{{base_url}}/api/v1/user/features"
+method: GET
+order: 3760679278346404

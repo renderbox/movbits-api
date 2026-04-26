@@ -1,0 +1,7 @@
+$kind: http-request
+name: My Team's Shows
+url: "{{base_url}}/api/v1/shows?team_id=6d7550e8-48d8-4ca6-9a7b-92e076629e07"
+method: GET
+queryParams:
+  team_id: 6d7550e8-48d8-4ca6-9a7b-92e076629e07
+order: 558431485534

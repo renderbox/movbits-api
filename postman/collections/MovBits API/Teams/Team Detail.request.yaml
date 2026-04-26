@@ -1,0 +1,5 @@
+$kind: http-request
+name: Team Detail
+url: ""
+method: GET
+order: 4247326002841101

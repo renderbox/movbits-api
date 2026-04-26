@@ -1,0 +1,48 @@
+$kind: collection
+name: MovBits API
+scripts:
+  - type: http:afterResponse
+    code: >-
+      function parseJwt(token) {
+          var base64Url = token.split('.')[1];
+          var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64));
+      }
+
+
+      let token = pm.environment.get("access_token");
+
+
+      if (token) {
+          let decoded = parseJwt(token);
+          let now = Math.floor(Date.now() / 1000);
+
+          if (decoded.exp < now) {
+              console.log("Token expired, refreshing...");
+
+              pm.sendRequest({
+                  url: pm.environment.get("base_url") + "/api/auth/jwt/refresh/",
+                  method: "POST",
+                  header: { "Content-Type": "application/json" },
+                  body: {
+                      mode: "raw",
+                      raw: JSON.stringify({
+                          refresh: pm.environment.get("refresh_token")
+                      })
+                  }
+              }, function (err, res) {
+                  if (!err) {
+                      let newData = res.json();
+                      pm.environment.set("access_token", newData.access);
+                      console.log("Token refreshed.");
+                  }
+              });
+          }
+      }
+    language: text/javascript
+auth:
+  - id: ""
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{access_token}}"

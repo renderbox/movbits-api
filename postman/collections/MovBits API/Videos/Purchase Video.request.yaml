@@ -1,0 +1,11 @@
+$kind: http-request
+name: Purchase Video
+url: "{{base_url}}/api/v1/video/:video_id/purchase"
+method: POST
+pathVariables:
+  video_id: some-video-slug
+auth:
+  type: bearer
+  bearer:
+    token: "{{access_token}}"
+order: 3000

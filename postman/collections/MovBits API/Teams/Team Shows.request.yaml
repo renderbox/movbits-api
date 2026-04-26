@@ -1,0 +1,5 @@
+$kind: http-request
+name: Team Shows
+url: ""
+method: GET
+order: 3490056153312907
