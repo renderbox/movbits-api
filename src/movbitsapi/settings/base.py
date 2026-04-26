@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     # Local apps
     "core",
     "events",
-    "event_machine",
     "feature",
     "wallet",
     "shortlink",
@@ -335,7 +334,6 @@ MAINTENANCE_BYPASS_PATHS = [
 ]
 
 # ── Redis / Event machine ─────────────────────────────────────────────────────
-EVENT_MACHINE_REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
 
 # ── GCP Pub/Sub ───────────────────────────────────────────────────────────────
 PUBSUB_TOPIC_OVERRIDES: dict = {}
