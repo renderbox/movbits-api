@@ -1,13 +1,11 @@
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.contrib.sites.models import Site
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from microdrama.models import Chapter, Episode, Series
-from team.models import Team
+from shows.models import Video
 
 from ..models import BatchStatus, FileStatus, UploadBatch, UploadBatchFile
 
@@ -25,32 +23,24 @@ def make_user(username, is_staff=False):
     )
 
 
-def make_chapter(title="Chapter 1", cdn=Chapter.CDNChoices.VIMEO):
-    site = Site.objects.get_or_create(domain="example.com", defaults={"name": "example"})[0]
-    # Team.save() always slugifies `name`, so use the title to keep slugs unique.
-    team = Team.objects.create(name=f"Team {title}")
-    team.sites.add(site)
-    series = Series.objects.create(
-        title=f"Series {title}", slug=f"series-{title.lower().replace(' ', '-')}",
-        description="desc", team=team,
-    )
-    episode = Episode.objects.create(title="Ep 1", slug="ep-1", series=series, order=1)
-    return Chapter.objects.create(title=title, episode=episode, chapter_number=0, cdn=cdn)
+def make_video(title="Video 1", cdn=Video.CDNChoices.VIMEO):
+    return Video.objects.create(title=title, cdn=cdn)
 
 
-def make_batch(chapter, user, name="Test Batch", batch_status=BatchStatus.PENDING):
+def make_batch(video, user, name="Test Batch", batch_status=BatchStatus.PENDING):
     return UploadBatch.objects.create(
-        chapter=chapter, batch_name=name, created_by=user, status=batch_status
+        video=video, batch_name=name, created_by=user, status=batch_status
     )
 
 
 def add_file(batch, relative_path, file_status=FileStatus.PENDING):
     filename = relative_path.split("/")[-1]
+    hls_dir = batch.video.get_video_hls_path(version=batch.video.version)
     return UploadBatchFile.objects.create(
         batch=batch,
         filename=filename,
         relative_path=relative_path,
-        s3_key=f"ch/{batch.chapter.uuid}/video/hls/{relative_path}",
+        s3_key=f"{hls_dir}{relative_path}",
         size=1024,
         content_type="video/mp2t" if relative_path.endswith(".ts") else "application/x-mpegURL",
         status=file_status,
@@ -70,7 +60,7 @@ class CreateUploadBatchTests(APITestCase):
     def setUp(self):
         self.staff = make_user("staff", is_staff=True)
         self.user = make_user("user", is_staff=False)
-        self.chapter = make_chapter()
+        self.video = make_video()
         self.url = reverse("media_create_batch")
 
     def _post(self, data):
@@ -78,62 +68,62 @@ class CreateUploadBatchTests(APITestCase):
             return self.client.post(self.url, data, format="json")
 
     def test_unauthenticated_returns_403(self):
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": MANIFEST})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_non_staff_returns_403(self):
         self.client.force_authenticate(self.user)
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": MANIFEST})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_missing_chapter_uuid_returns_400(self):
+    def test_missing_video_uuid_returns_400(self):
         self.client.force_authenticate(self.staff)
         response = self._post({"files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_missing_files_returns_400(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": []})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": []})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_unknown_chapter_uuid_returns_404(self):
+    def test_unknown_video_uuid_returns_404(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"chapter_uuid": "00000000-0000-0000-0000-000000000000", "files": MANIFEST})
+        response = self._post({"video_uuid": "00000000-0000-0000-0000-000000000000", "files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_creates_batch_and_returns_201(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": MANIFEST})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("id", response.data)
         self.assertEqual(len(response.data["files"]), 2)
 
     def test_response_includes_upload_url(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": MANIFEST})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         for f in response.data["files"]:
             self.assertEqual(f["upload_url"], FAKE_PRESIGNED_URL)
 
-    def test_s3_key_uses_chapter_hls_dir(self):
+    def test_s3_key_uses_video_hls_dir(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": MANIFEST})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": MANIFEST})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         batch_id = response.data["id"]
         files = UploadBatchFile.objects.filter(batch_id=batch_id)
-        expected_prefix = self.chapter.get_hls_dir()
+        expected_prefix = self.video.get_video_hls_path(version=self.video.version)
         for f in files:
             self.assertTrue(f.s3_key.startswith(expected_prefix))
 
     def test_batch_name_defaults_to_cli_upload(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"chapter_uuid": str(self.chapter.uuid), "files": MANIFEST})
+        response = self._post({"video_uuid": str(self.video.uuid), "files": MANIFEST})
         self.assertEqual(response.data["batch_name"], "CLI Upload")
 
     def test_batch_name_can_be_set(self):
         self.client.force_authenticate(self.staff)
         response = self._post({
-            "chapter_uuid": str(self.chapter.uuid),
+            "video_uuid": str(self.video.uuid),
             "files": MANIFEST,
             "batch_name": "Season 2 Upload",
         })
@@ -147,8 +137,8 @@ class UploadBatchDetailTests(APITestCase):
     def setUp(self):
         self.staff = make_user("staff", is_staff=True)
         self.user = make_user("user", is_staff=False)
-        self.chapter = make_chapter("Chapter 2")
-        self.batch = make_batch(self.chapter, self.staff)
+        self.video = make_video("Video 2")
+        self.batch = make_batch(self.video, self.staff)
         add_file(self.batch, "index.m3u8")
         self.url = reverse("media_batch_detail", kwargs={"batch_id": self.batch.id})
 
@@ -187,8 +177,8 @@ class CompleteFileUploadTests(APITestCase):
     def setUp(self):
         self.staff = make_user("staff", is_staff=True)
         self.user = make_user("user", is_staff=False)
-        self.chapter = make_chapter("Chapter 3")
-        self.batch = make_batch(self.chapter, self.staff)
+        self.video = make_video("Video 3")
+        self.batch = make_batch(self.video, self.staff)
         self.m3u8 = add_file(self.batch, "index.m3u8")
         self.seg = add_file(self.batch, "seg0.ts")
 
@@ -236,21 +226,20 @@ class CompleteFileUploadTests(APITestCase):
         self.batch.refresh_from_db()
         self.assertEqual(self.batch.status, BatchStatus.COMPLETE)
 
-    def test_chapter_finalized_when_batch_complete(self):
+    def test_video_finalized_when_batch_complete(self):
         self.client.force_authenticate(self.staff)
         self.client.post(self._complete_url(self.m3u8))
         self.client.post(self._complete_url(self.seg))
-        self.chapter.refresh_from_db()
-        self.assertEqual(self.chapter.cdn, Chapter.CDNChoices.S3_MEDIA_BUCKET)
-        self.assertEqual(self.chapter.video_url, "index.m3u8")
-        self.assertTrue(self.chapter.transcoded)
+        self.video.refresh_from_db()
+        self.assertEqual(self.video.cdn, Video.CDNChoices.S3_MEDIA_BUCKET)
+        self.assertEqual(self.video.video_key, "index.m3u8")
 
-    def test_chapter_not_finalized_until_all_files_done(self):
+    def test_video_not_finalized_until_all_files_done(self):
         self.client.force_authenticate(self.staff)
         self.client.post(self._complete_url(self.m3u8))
-        self.chapter.refresh_from_db()
+        self.video.refresh_from_db()
         # Still VIMEO — not finalized yet
-        self.assertEqual(self.chapter.cdn, Chapter.CDNChoices.VIMEO)
+        self.assertEqual(self.video.cdn, Video.CDNChoices.VIMEO)
 
 
 # ── list_uploads ──────────────────────────────────────────────────────────────
@@ -260,10 +249,10 @@ class ListUploadsTests(APITestCase):
     def setUp(self):
         self.staff = make_user("staff", is_staff=True)
         self.user = make_user("user", is_staff=False)
-        self.chapter_a = make_chapter("Chapter A")
-        self.chapter_b = make_chapter("Chapter B")
-        self.batch_a = make_batch(self.chapter_a, self.staff, "Batch A")
-        self.batch_b = make_batch(self.chapter_b, self.staff, "Batch B")
+        self.video_a = make_video("Video A")
+        self.video_b = make_video("Video B")
+        self.batch_a = make_batch(self.video_a, self.staff, "Batch A")
+        self.batch_b = make_batch(self.video_b, self.staff, "Batch B")
         add_file(self.batch_a, "index.m3u8")
         add_file(self.batch_a, "seg0.ts")
         add_file(self.batch_b, "index.m3u8")
@@ -284,17 +273,17 @@ class ListUploadsTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["files"]), 3)
 
-    def test_filter_by_chapter_uuid(self):
+    def test_filter_by_video_uuid(self):
         self.client.force_authenticate(self.staff)
-        response = self.client.get(self.url, {"chapter_uuid": str(self.chapter_a.uuid)})
+        response = self.client.get(self.url, {"video_uuid": str(self.video_a.uuid)})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["files"]), 2)
         for f in response.data["files"]:
-            self.assertEqual(f["chapter_uuid"], str(self.chapter_a.uuid))
+            self.assertEqual(f["video_uuid"], str(self.video_a.uuid))
 
     def test_filter_by_prefix(self):
         self.client.force_authenticate(self.staff)
-        prefix = self.chapter_a.get_hls_dir()
+        prefix = self.video_a.get_video_hls_path(version=self.video_a.version)
         response = self.client.get(self.url, {"prefix": prefix})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["files"]), 2)
@@ -303,5 +292,5 @@ class ListUploadsTests(APITestCase):
         self.client.force_authenticate(self.staff)
         response = self.client.get(self.url)
         f = response.data["files"][0]
-        for field in ["key", "relative_path", "filename", "size", "status", "batch_id", "chapter_uuid"]:
+        for field in ["key", "relative_path", "filename", "size", "status", "batch_id", "video_uuid"]:
             self.assertIn(field, f)

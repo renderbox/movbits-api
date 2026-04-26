@@ -1,35 +1,21 @@
 from django.contrib.auth import get_user_model
-from django.contrib.sites.models import Site
 from django.test import TestCase
 
-from microdrama.models import Chapter, Episode, Series
-from team.models import Team
+from shows.models import Video
 
 from ..models import BatchStatus, UploadBatch, UploadBatchFile
-from ..api.views import _finalize_chapter, _pick_entry_point
+from ..api.views import _finalize_video, _pick_entry_point
 
 User = get_user_model()
 
 
-def make_chapter(title="Chapter 1", cdn=Chapter.CDNChoices.VIMEO):
-    site = Site.objects.get_or_create(domain="example.com", defaults={"name": "example"})[0]
-    # Team.save() always slugifies `name`, so use the title to keep slugs unique.
-    team = Team.objects.create(name=f"Team {title}")
-    team.sites.add(site)
-    series = Series.objects.create(
-        title="Test Series", slug="test-series", description="desc", team=team
-    )
-    episode = Episode.objects.create(
-        title="Ep 1", slug="ep-1", series=series, order=1
-    )
-    return Chapter.objects.create(
-        title=title, episode=episode, chapter_number=0, cdn=cdn
-    )
+def make_video(title="Video 1", cdn=Video.CDNChoices.VIMEO):
+    return Video.objects.create(title=title, cdn=cdn)
 
 
-def make_batch(chapter, staff_user, name="Test Batch"):
+def make_batch(video, staff_user, name="Test Batch"):
     return UploadBatch.objects.create(
-        chapter=chapter,
+        video=video,
         batch_name=name,
         created_by=staff_user,
         status=BatchStatus.PENDING,
@@ -38,11 +24,12 @@ def make_batch(chapter, staff_user, name="Test Batch"):
 
 def add_file(batch, relative_path, filename=None):
     filename = filename or relative_path.split("/")[-1]
+    hls_dir = batch.video.get_video_hls_path(version=batch.video.version)
     return UploadBatchFile.objects.create(
         batch=batch,
         filename=filename,
         relative_path=relative_path,
-        s3_key=f"ch/{batch.chapter.uuid}/video/hls/{relative_path}",
+        s3_key=f"{hls_dir}{relative_path}",
         size=1024,
         content_type="video/mp2t",
     )
@@ -53,8 +40,8 @@ class PickEntryPointTests(TestCase):
         self.staff = User.objects.create_user(
             username="staff", email="staff@example.com", password="x", is_staff=True
         )
-        self.chapter = make_chapter()
-        self.batch = make_batch(self.chapter, self.staff)
+        self.video = make_video()
+        self.batch = make_batch(self.video, self.staff)
 
     def test_returns_none_when_no_m3u8(self):
         add_file(self.batch, "segment0.ts")
@@ -80,39 +67,32 @@ class PickEntryPointTests(TestCase):
     def test_returns_alphabetically_first_when_all_nested(self):
         add_file(self.batch, "1080p/index.m3u8")
         add_file(self.batch, "720p/index.m3u8")
-        # ordered by relative_path, so 1080p comes first
         self.assertEqual(_pick_entry_point(self.batch), "index.m3u8")
 
 
-class FinalizeChapterTests(TestCase):
+class FinalizeVideoTests(TestCase):
     def setUp(self):
         self.staff = User.objects.create_user(
             username="staff", email="staff@example.com", password="x", is_staff=True
         )
-        self.chapter = make_chapter()
-        self.batch = make_batch(self.chapter, self.staff)
+        self.video = make_video()
+        self.batch = make_batch(self.video, self.staff)
 
     def test_sets_cdn_to_s3(self):
         add_file(self.batch, "index.m3u8")
-        _finalize_chapter(self.batch)
-        self.chapter.refresh_from_db()
-        self.assertEqual(self.chapter.cdn, Chapter.CDNChoices.S3_MEDIA_BUCKET)
+        _finalize_video(self.batch)
+        self.video.refresh_from_db()
+        self.assertEqual(self.video.cdn, Video.CDNChoices.S3_MEDIA_BUCKET)
 
-    def test_sets_video_url_to_entry_point(self):
+    def test_sets_video_key_to_entry_point(self):
         add_file(self.batch, "index.m3u8")
         add_file(self.batch, "segment0.ts")
-        _finalize_chapter(self.batch)
-        self.chapter.refresh_from_db()
-        self.assertEqual(self.chapter.video_url, "index.m3u8")
+        _finalize_video(self.batch)
+        self.video.refresh_from_db()
+        self.assertEqual(self.video.video_key, "index.m3u8")
 
-    def test_sets_transcoded_true(self):
-        add_file(self.batch, "index.m3u8")
-        _finalize_chapter(self.batch)
-        self.chapter.refresh_from_db()
-        self.assertTrue(self.chapter.transcoded)
-
-    def test_video_url_none_when_no_m3u8(self):
+    def test_video_key_none_when_no_m3u8(self):
         add_file(self.batch, "segment0.ts")
-        _finalize_chapter(self.batch)
-        self.chapter.refresh_from_db()
-        self.assertIsNone(self.chapter.video_url)
+        _finalize_video(self.batch)
+        self.video.refresh_from_db()
+        self.assertIsNone(self.video.video_key)

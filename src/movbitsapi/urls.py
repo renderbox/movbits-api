@@ -17,7 +17,6 @@ api_v1_urls = [
     path("schema/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path("admin/", include("administration.api.urls")),
-    path("series/", include("microdrama.api.urls")),
     path("maintenance/", include("maintenance.api.urls")),
     path("user/", include("core.api.urls")),
     path("analytics/", include("analytics.api.urls")),

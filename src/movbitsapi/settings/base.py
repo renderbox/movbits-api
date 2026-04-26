@@ -73,7 +73,6 @@ INSTALLED_APPS = [
     "support",
     "site_invitations",
     "media",
-    "microdrama",
 ]
 
 SITE_ID = 1

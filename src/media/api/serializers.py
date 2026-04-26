@@ -18,11 +18,11 @@ class UploadBatchFileWithUrlSerializer(UploadBatchFileSerializer):
 
 class UploadBatchSerializer(serializers.ModelSerializer):
     files = UploadBatchFileSerializer(many=True, read_only=True)
-    chapterUuid = serializers.UUIDField(source="chapter.uuid", read_only=True)
+    videoUuid = serializers.UUIDField(source="video.uuid", read_only=True)
 
     class Meta:
         model = UploadBatch
-        fields = ["id", "batch_name", "chapterUuid", "status", "created_at", "updated_at", "files"]
+        fields = ["id", "batch_name", "videoUuid", "status", "created_at", "updated_at", "files"]
 
 
 class UploadBatchCreateSerializer(UploadBatchSerializer):

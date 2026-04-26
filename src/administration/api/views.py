@@ -25,7 +25,7 @@ def _ip(request) -> str:
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def admin_stats(request):
-    from microdrama.models import Episode
+    from shows.models import Episode
 
     return Response(
         {

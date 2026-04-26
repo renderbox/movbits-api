@@ -3,7 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 
-from microdrama.models import Chapter
+from shows.models import Video
 
 
 class BatchStatus(models.TextChoices):
@@ -21,8 +21,8 @@ class FileStatus(models.TextChoices):
 
 class UploadBatch(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    chapter = models.ForeignKey(
-        Chapter,
+    video = models.ForeignKey(
+        Video,
         on_delete=models.CASCADE,
         related_name="upload_batches",
     )
