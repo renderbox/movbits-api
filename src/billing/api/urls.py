@@ -101,14 +101,4 @@ urlpatterns = [
     #     views.get_refund_status,
     #     name="billing_refund_status",
     # ),
-    # # Promo & summary
-    # path("promo/apply", views.apply_promo_code, name="billing_apply_promo"),
-    # path("summary", views.get_spending_summary, name="billing_summary"),
-    # # Unlock/pricing
-    # path("unlock", views.unlock_content, name="billing_unlock"),
-    # path(
-    #     "pricing/<str:content_id>",
-    #     views.get_content_pricing,
-    #     name="billing_pricing",
-    # ),
 ]

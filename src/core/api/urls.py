@@ -1,8 +1,14 @@
 from django.urls import path
 
-from . import social_views, views
+from . import consent_views, social_views, views
 
 urlpatterns = [
+    # Consent
+    path("consent/items", consent_views.consent_items, name="consent-items"),
+    path("consent/save", consent_views.save_consent, name="consent-save"),
+    path("consent/preferences", consent_views.get_user_consent, name="consent-preferences"),
+    path("consent/preferences/update", consent_views.update_user_consent, name="consent-preferences-update"),
+
     # Users
     path("me", views.CurrentUserView.as_view(), name="users-me"),
     path("me/avatar", views.AvatarUploadView.as_view(), name="users-avatar-upload"),
