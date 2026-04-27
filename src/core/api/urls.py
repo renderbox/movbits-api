@@ -6,8 +6,16 @@ urlpatterns = [
     # Consent
     path("consent/items", consent_views.consent_items, name="consent-items"),
     path("consent/save", consent_views.save_consent, name="consent-save"),
-    path("consent/preferences", consent_views.get_user_consent, name="consent-preferences"),
-    path("consent/preferences/update", consent_views.update_user_consent, name="consent-preferences-update"),
+    path(
+        "consent/preferences",
+        consent_views.get_user_consent,
+        name="consent-preferences",
+    ),
+    path(
+        "consent/update",
+        consent_views.update_user_consent,
+        name="consent-update",
+    ),
 
     # Users
     path("me", views.CurrentUserView.as_view(), name="users-me"),
@@ -17,8 +25,16 @@ urlpatterns = [
     path("profile/update", views.update_profile, name="users-update-profile"),
     path("credits", views.get_credits, name="users-credits"),
     path("devices", views.get_devices, name="users-devices"),
-    path("history/recent", views.get_history_recent, name="users-recent-history"),
-    path("history/favorite", views.get_history_favorite, name="users-favorite-history"),
+    path(
+        "history/recent",
+        views.get_history_recent,
+        name="users-recent-history",
+    ),
+    path(
+        "history/favorite",
+        views.get_history_favorite,
+        name="users-favorite-history",
+    ),
     path("<str:user_id>/info", views.UserView.as_view(), name="users-get"),
     path("tos", views.get_tos, name="core-tos"),
     path("eula", views.get_eula, name="core-eula"),
