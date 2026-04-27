@@ -10,7 +10,7 @@ from core.utils import to_lower_camel_case
 from localization.models import Language
 
 
-class StoryUser(AbstractUser):
+class MBUser(AbstractUser):
     username = models.CharField(
         _("username"),
         max_length=150,
@@ -84,9 +84,7 @@ class StoryUser(AbstractUser):
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(
-        StoryUser, on_delete=models.CASCADE, related_name="profiles"
-    )
+    user = models.ForeignKey(MBUser, on_delete=models.CASCADE, related_name="profiles")
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="profiles")
     role = models.CharField(max_length=50, default="member")
     preferences = models.JSONField(default=dict, blank=True)
@@ -159,5 +157,7 @@ class ConsentRecord(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        identifier = self.user.email if self.user_id else self.session_key or "anonymous"
+        identifier = (
+            self.user.email if self.user_id else self.session_key or "anonymous"
+        )
         return f"ConsentRecord({identifier}, v{self.version}, {self.created_at})"

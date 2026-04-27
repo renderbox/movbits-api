@@ -25,7 +25,7 @@ class StoryAccountAdapter(DefaultAccountAdapter):
 
 class StorySocialAccountAdapter(DefaultSocialAccountAdapter):
     """
-    Customise how SSO logins are mapped to StoryUser accounts.
+    Customise how SSO logins are mapped to MBUser accounts.
 
     populate_user() is called by allauth after it fetches the provider profile.
     We map the common name fields so new SSO users get a proper first/last name

@@ -11,7 +11,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APIRequestFactory
 
-from core.models import StoryUser
+from core.models import MBUser
 from shows.api.serializers import ShowSerializer, VideoSerializer
 from shows.models import Episode, RevShareDeal, Season, Show, Tag, Video, VideoReceipt
 from team.models import Team
@@ -201,7 +201,7 @@ class VideoDetailViewTests(TestCase):
 class VideoURLViewTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = StoryUser.objects.create_user(
+        self.user = MBUser.objects.create_user(
             email="viewer@example.com",
             username="viewer@example.com",
             password="strong-pass",
@@ -331,7 +331,7 @@ class SignedPlaylistViewTests(TestCase):
             video_key="hls-key-paid",
             uuid=self.paid_video_uuid,
         )
-        self.user = StoryUser.objects.create_user(
+        self.user = MBUser.objects.create_user(
             email="hls@example.com",
             username="hls@example.com",
             password="strong-pass",
@@ -461,7 +461,7 @@ class SignedPlaylistViewTests(TestCase):
 class VideoPurchaseViewTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = StoryUser.objects.create_user(
+        self.user = MBUser.objects.create_user(
             email="buyer@example.com",
             username="buyer@example.com",
             password="strong-pass",
@@ -587,7 +587,7 @@ class VideoPurchaseViewTests(TestCase):
 class VideoSerializerLockingTests(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = StoryUser.objects.create_user(
+        self.user = MBUser.objects.create_user(
             email="serialize@example.com",
             username="serialize@example.com",
             password="strong-pass",
@@ -654,7 +654,7 @@ class VideoSerializerLockingTests(TestCase):
 class ChapterPlaybackEventViewTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = StoryUser.objects.create_user(
+        self.user = MBUser.objects.create_user(
             email="tracker@example.com",
             username="tracker@example.com",
             password="strong-pass",
@@ -798,7 +798,7 @@ class ChapterPlaybackEventViewTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
     def test_chapter_started_does_not_affect_other_users_receipts(self):
-        other_user = StoryUser.objects.create_user(
+        other_user = MBUser.objects.create_user(
             email="other@example.com",
             username="other@example.com",
             password="pass",

@@ -352,7 +352,9 @@ class VideoReceipt(models.Model):
     """Tracks user purchases of videos.  Not required if the video is free (aka, price is 0)."""
 
     user = models.ForeignKey(
-        "core.StoryUser", on_delete=models.CASCADE, related_name="video_receipts"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="video_receipts",
     )
     episode = models.ForeignKey(
         Episode,

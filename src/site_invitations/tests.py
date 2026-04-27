@@ -4,13 +4,13 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from core.models import StoryUser
+from core.models import MBUser
 
 from .models import SiteInvitation
 
 
 def make_staff_user(username="staff", **kwargs):
-    user = StoryUser.objects.create_user(
+    user = MBUser.objects.create_user(
         username=username,
         email=f"{username}@example.com",
         password="testpass",
@@ -21,7 +21,7 @@ def make_staff_user(username="staff", **kwargs):
 
 
 def make_regular_user(username="user"):
-    return StoryUser.objects.create_user(
+    return MBUser.objects.create_user(
         username=username,
         email=f"{username}@example.com",
         password="testpass",
