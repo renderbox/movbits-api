@@ -821,7 +821,7 @@ class ChapterPlaybackEventViewTests(TestCase):
 class VideoPurchaseAuditTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = StoryUser.objects.create_user(
+        self.user = MBUser.objects.create_user(
             email="audit-buyer@example.com",
             username="audit-buyer@example.com",
             password="strong-pass",
