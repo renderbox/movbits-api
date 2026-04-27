@@ -1090,7 +1090,6 @@ class PurchaseCreditsSuccessView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        print("PurchasedCreditsView POST called with data:", request.data)
 
         # TODO: a cart ID should be returned as invoiceId
 

@@ -64,7 +64,6 @@ def add_to_interest_list(request):
 
     if not survey or not survey.questions:
         # change this to a warning log entry
-        print("No active survey found.")
 
         return Response(
             {
@@ -109,7 +108,6 @@ def submit_survey(request):
     """
 
     # print out the incoming data for debugging
-    print("Survey submission received:", request.data)
 
     # site = Site.objects.get(id=1)  # TODO: handle site properly. Placeholder.
 

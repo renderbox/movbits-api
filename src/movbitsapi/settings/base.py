@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     # Local apps
     "core",
     "events",
-    "feature",
     "wallet",
     "shortlink",
     "team",
