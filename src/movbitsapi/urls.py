@@ -40,8 +40,17 @@ api_v1_urls = [
     path("media/", include("media.api.urls")),
     path("invitations/", include("site_invitations.api.urls")),
     path("wallet/", include("wallet.api.urls")),
-    path("", include("vendor.api.urls")),
-    path("payment/", include("vendor.api.stripe.elements.urls")),
+    path(
+        "",
+        include(("vendor.api.urls", "vendor_api"), namespace="vendor_api"),
+    ),
+    path(
+        "payment/",
+        include(
+            ("vendor.api.stripe.elements.urls", "vendor_api"),
+            namespace="vendor_stripe",
+        ),
+    ),
 ]
 
 api_urls = [
@@ -109,6 +118,6 @@ api_urls = [
 urlpatterns = [
     path("api/", include(api_urls)),
     path("admin/", admin.site.urls),
-    path("r/", include("shortlink.urls")),  # referral redirect — not an API endpoint
+    path("r/", include("shortlink.urls")),  # referral redirect
     path("", include("core.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

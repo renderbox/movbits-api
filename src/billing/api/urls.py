@@ -44,6 +44,11 @@ urlpatterns = [
         views.CustomerPortalView.as_view(),
         name="billing_customer_portal",
     ),
+    path(
+        "summary",
+        views.BillingSummaryView.as_view(),
+        name="billing-summary",
+    ),
     # path("credits/balance", views.credit_balance, name="billing_credit_balance"),
     # # Subscriptions
     # path("subscription", views.get_subscription, name="billing_get_subscription"),

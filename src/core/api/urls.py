@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import consent_views, social_views, views
+from . import consent_views, mfa_views, social_views, views
 
 urlpatterns = [
     # Consent
@@ -17,9 +17,18 @@ urlpatterns = [
         name="consent-update",
     ),
 
+    # 2FA / TOTP
+    path("2fa/enable", mfa_views.enable_totp, name="2fa-enable"),
+    path("2fa/disable", mfa_views.disable_totp, name="2fa-disable"),
+    path("2fa/status", mfa_views.totp_status, name="2fa-status"),
+
     # Users
     path("me", views.CurrentUserView.as_view(), name="users-me"),
-    path("me/avatar", views.AvatarUploadView.as_view(), name="users-avatar-upload"),
+    path(
+        "me/avatar",
+        views.AvatarUploadView.as_view(),
+        name="users-avatar-upload",
+    ),
     path("features", views.CurrentFeaturesView.as_view(), name="users-features"),
     path("list", views.users_list, name="users-list"),
     path("profile/update", views.update_profile, name="users-update-profile"),

@@ -17,9 +17,12 @@ from vendor.models import Invoice, Offer
 from vendor.models.choice import InvoiceStatus
 from vendor.utils import get_site_from_request
 
+from django.utils.timezone import now as tz_now
+from dateutil.relativedelta import relativedelta
+
 from events.emit import TOPIC_PURCHASES, emit
 from events.schemas import CreditPurchasedEvent
-from wallet.models import CreditTypes, Wallet, WalletTransaction
+from wallet.models import CreditTypes, Wallet, WalletTransaction  # noqa: E501
 
 from ..models import Product  # CreditPackage, Receipt, Wallet
 from .serializers import (  # VendorInvoiceSerializer,
@@ -1404,6 +1407,65 @@ class PurchaseCreditsSuccessView(APIView):
 #             "remainingCredits": USER_BALANCES["default"],
 #         }
 #     )
+
+
+class BillingSummaryView(APIView):
+    """
+    GET /api/v1/billing/summary?period=month|quarter|year
+
+    Returns real-money spending totals aggregated from CREDIT_PURCHASE
+    WalletTransactions. The Stripe webhook stores amount_received (minor
+    units, e.g. cents) in metadata, so results are converted to dollars.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    _PERIODS = {
+        "month": relativedelta(months=1),
+        "quarter": relativedelta(months=3),
+        "year": relativedelta(years=1),
+    }
+
+    def get(self, request):
+        period = request.query_params.get("period", "month")
+        delta = self._PERIODS.get(period, self._PERIODS["month"])
+        since = tz_now() - delta
+
+        purchases = (
+            WalletTransaction.objects.filter(
+                wallet__user=request.user,
+                transaction_type=WalletTransaction.TransactionType.CREDIT_PURCHASE,
+                created_at__gte=since,
+            )
+        )
+
+        total_cents = 0
+        transactions = []
+        for txn in purchases.order_by("-created_at"):
+            cents = txn.metadata.get("amount_received") or 0
+            try:
+                cents = int(cents)
+            except (TypeError, ValueError):
+                cents = 0
+            total_cents += cents
+            transactions.append(
+                {
+                    "date": txn.created_at.isoformat(),
+                    "amount": round(cents / 100, 2),
+                    "currency": txn.metadata.get("currency", "usd"),
+                    "credits": txn.amount,
+                    "reference_id": txn.reference_id,
+                }
+            )
+
+        return Response(
+            {
+                "period": period,
+                "total": round(total_cents / 100, 2),
+                "currency": "usd",
+                "transactions": transactions,
+            }
+        )
 
 
 # @api_view(["GET"])

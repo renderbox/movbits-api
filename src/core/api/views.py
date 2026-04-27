@@ -166,21 +166,47 @@ def signup(request: Request):
 
 @api_view(["POST"])
 def verify_2fa(request: Request):
-    # Mock always succeeds and optionally returns a token
-
-    if not isinstance(request.data, dict):
+    """
+    Verifies a TOTP code for the authenticated user.
+    Used as a step-up check after password login when MFA is required.
+    Full login-flow integration (issuing JWT post-verification) is a
+    separate concern handled by the auth pipeline.
+    """
+    if not request.user.is_authenticated:
         return JsonResponse(
-            {"error": "Invalid request body"}, status=status.HTTP_400_BAD_REQUEST
+            {"detail": "Authentication required."},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
-    code = request.data.get("code")
 
-    # If code is provided, return a token to simulate verification flow
-    if code:
-        # Create a temporary user if none exists for demo
-        user = _make_user()
-        token = f"mock-token-{user['id']}"
-        return JsonResponse({"success": True, "token": token})
-    return JsonResponse({"success": False}, status=status.HTTP_400_BAD_REQUEST)
+    code = (request.data or {}).get("code", "").strip()
+    if not code:
+        return JsonResponse(
+            {"detail": "code is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    from allauth.mfa.models import Authenticator
+    from allauth.mfa.totp.internal.auth import TOTP
+
+    try:
+        authenticator = Authenticator.objects.get(
+            user=request.user, type=Authenticator.Type.TOTP
+        )
+    except Authenticator.DoesNotExist:
+        return JsonResponse(
+            {"detail": "Two-factor authentication is not configured."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    totp = TOTP(authenticator)
+    if not totp.validate_code(code):
+        return JsonResponse(
+            {"detail": "Invalid code."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    authenticator.record_usage()
+    return JsonResponse({"success": True})
 
 
 # TODO: Password Reset View for users who forgot their password

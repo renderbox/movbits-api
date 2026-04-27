@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # Third-party
     "allauth",
     "allauth.account",
+    "allauth.mfa",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.facebook",
@@ -88,6 +89,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "maintenance.middleware.MaintenanceMiddleware",
+    "core.middleware.SuperuserMFARequiredMiddleware",
 ]
 
 ROOT_URLCONF = "movbitsapi.urls"
@@ -229,6 +231,8 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 # ── AllAuth ───────────────────────────────────────────────────────────────────
 ACCOUNT_ADAPTER = "core.accounts.adapter.StoryAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "core.accounts.adapter.StorySocialAccountAdapter"
+MFA_ADAPTER = "core.mfa_adapter.MovbitsMFAAdapter"
+MFA_TOTP_ISSUER = "MovBits"
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
