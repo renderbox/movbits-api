@@ -13,7 +13,12 @@ _CONSENT_ITEMS = [
         "name": "Necessary Cookies",
         "required": True,
         "enabled": True,
-        "services": ["Authentication", "Session Management", "Security", "Load Balancing"],
+        "services": [
+            "Authentication",
+            "Session Management",
+            "Security",
+            "Load Balancing",
+        ],
     },
     {
         "id": "functional",
@@ -21,7 +26,11 @@ _CONSENT_ITEMS = [
         "name": "Functional Cookies",
         "required": False,
         "enabled": False,
-        "services": ["Language Preferences", "Playback Settings", "Subtitle Preferences"],
+        "services": [
+            "Language Preferences",
+            "Playback Settings",
+            "Subtitle Preferences",
+        ],
     },
     {
         "id": "analytics",
@@ -37,7 +46,11 @@ _CONSENT_ITEMS = [
         "name": "Marketing Cookies",
         "required": False,
         "enabled": False,
-        "services": ["Personalized Recommendations", "Ad Targeting", "Cross-site Tracking"],
+        "services": [
+            "Personalized Recommendations",
+            "Ad Targeting",
+            "Cross-site Tracking",
+        ],
     },
     {
         "id": "preferences",
@@ -51,10 +64,9 @@ _CONSENT_ITEMS = [
 
 
 def _ip(request):
-    return (
-        request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
-        or request.META.get("REMOTE_ADDR", "")
-    )
+    return request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[
+        0
+    ].strip() or request.META.get("REMOTE_ADDR", "")
 
 
 @api_view(["GET"])
@@ -86,28 +98,36 @@ def save_consent(request):
         user_agent=request.META.get("HTTP_USER_AGENT", ""),
     )
 
-    latest = ConsentRecord.objects.filter(
-        user=user, session_key=session_key
-    ).order_by("-created_at").first()
+    latest = (
+        ConsentRecord.objects.filter(user=user, session_key=session_key)
+        .order_by("-created_at")
+        .first()
+    )
 
-    return Response({
-        "preferences": latest.preferences,
-        "version": latest.version,
-        "timestamp": latest.created_at.isoformat(),
-    })
+    return Response(
+        {
+            "preferences": latest.preferences,
+            "version": latest.version,
+            "timestamp": latest.created_at.isoformat(),
+        }
+    )
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_consent(request):
-    record = ConsentRecord.objects.filter(user=request.user).order_by("-created_at").first()
+    record = (
+        ConsentRecord.objects.filter(user=request.user).order_by("-created_at").first()
+    )
     if not record:
         return Response({"preferences": None, "version": None, "timestamp": None})
-    return Response({
-        "preferences": record.preferences,
-        "version": record.version,
-        "timestamp": record.created_at.isoformat(),
-    })
+    return Response(
+        {
+            "preferences": record.preferences,
+            "version": record.version,
+            "timestamp": record.created_at.isoformat(),
+        }
+    )
 
 
 @api_view(["PUT"])
@@ -127,8 +147,10 @@ def update_user_consent(request):
         user_agent=request.META.get("HTTP_USER_AGENT", ""),
     )
 
-    return Response({
-        "preferences": record.preferences,
-        "version": record.version,
-        "timestamp": record.created_at.isoformat(),
-    })
+    return Response(
+        {
+            "preferences": record.preferences,
+            "version": record.version,
+            "timestamp": record.created_at.isoformat(),
+        }
+    )

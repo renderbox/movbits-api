@@ -1,6 +1,7 @@
 import logging
 
 import stripe
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -8,6 +9,7 @@ from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.timezone import now as tz_now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,9 +18,6 @@ from rest_framework.views import APIView
 from vendor.models import Invoice, Offer
 from vendor.models.choice import InvoiceStatus
 from vendor.utils import get_site_from_request
-
-from django.utils.timezone import now as tz_now
-from dateutil.relativedelta import relativedelta
 
 from events.emit import TOPIC_PURCHASES, emit
 from events.schemas import CreditPurchasedEvent
@@ -1431,12 +1430,10 @@ class BillingSummaryView(APIView):
         delta = self._PERIODS.get(period, self._PERIODS["month"])
         since = tz_now() - delta
 
-        purchases = (
-            WalletTransaction.objects.filter(
-                wallet__user=request.user,
-                transaction_type=WalletTransaction.TransactionType.CREDIT_PURCHASE,
-                created_at__gte=since,
-            )
+        purchases = WalletTransaction.objects.filter(
+            wallet__user=request.user,
+            transaction_type=WalletTransaction.TransactionType.CREDIT_PURCHASE,
+            created_at__gte=since,
         )
 
         total_cents = 0

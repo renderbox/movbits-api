@@ -3,8 +3,8 @@ from django.test import TestCase
 
 from shows.models import Video
 
-from ..models import BatchStatus, UploadBatch, UploadBatchFile
 from ..api.views import _finalize_video, _pick_entry_point
+from ..models import BatchStatus, UploadBatch, UploadBatchFile
 
 User = get_user_model()
 

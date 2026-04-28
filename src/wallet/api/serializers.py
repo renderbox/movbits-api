@@ -46,10 +46,16 @@ def _spending_summary(wallet):
     return {
         "all_time": _abs_sum(debits),
         "this_month": _abs_sum(
-            debits.filter(created_at__date__gte=first_of_month, created_at__date__lt=first_of_next_month)
+            debits.filter(
+                created_at__date__gte=first_of_month,
+                created_at__date__lt=first_of_next_month,
+            )
         ),
         "last_month": _abs_sum(
-            debits.filter(created_at__date__gte=first_of_last_month, created_at__date__lt=first_of_month)
+            debits.filter(
+                created_at__date__gte=first_of_last_month,
+                created_at__date__lt=first_of_month,
+            )
         ),
     }
 

@@ -51,7 +51,9 @@ class Survey(models.Model):
 class SurveyResult(models.Model):
     # The list of survey questions can vary so the responses will be put into a JSON field.
     email = models.EmailField()  # Incase the user is not registered
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True
+    )
     responses = models.JSONField()
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="results")
     submitted_at = models.DateTimeField(auto_now_add=True)

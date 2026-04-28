@@ -703,7 +703,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h1',
 #       title: 'The Space Chronicles',
-#       type: 'episode',
+# type: 'episode',
 #       thumbnail: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=225&fit=crop',
 #       progress: 75,
 #       duration: '42m',
@@ -714,7 +714,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h2',
 #       title: 'Digital Frontiers',
-#       type: 'movie',
+# type: 'movie',
 #       thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=225&fit=crop',
 #       progress: 100,
 #       duration: '2h 15m',
@@ -723,7 +723,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h3',
 #       title: 'Ocean Mysteries',
-#       type: 'episode',
+# type: 'episode',
 #       thumbnail: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=225&fit=crop',
 #       progress: 30,
 #       duration: '38m',
@@ -734,7 +734,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h4',
 #       title: 'City of Tomorrow',
-#       type: 'movie',
+# type: 'movie',
 #       thumbnail: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=400&h=225&fit=crop',
 #       progress: 15,
 #       duration: '1h 58m',
@@ -747,21 +747,21 @@ def get_devices(request: Request):
 #       id: 'w1',
 #       title: 'Future Wars',
 #       thumbnail: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&h=300&fit=crop',
-#       type: 'series',
+# type: 'series',
 #       addedDate: '2 days ago'
 #     },
 #     {
 #       id: 'w2',
 #       title: 'Silent Earth',
 #       thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=300&fit=crop',
-#       type: 'movie',
+# type: 'movie',
 #       addedDate: '1 week ago'
 #     },
 #     {
 #       id: 'w3',
 #       title: 'Tech Revolution',
 #       thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=300&fit=crop',
-#       type: 'series',
+# type: 'series',
 #       addedDate: '2 weeks ago'
 #     }
 #   ];
@@ -770,21 +770,21 @@ def get_devices(request: Request):
 #     {
 #       id: 'd1',
 #       name: 'iPhone 15 Pro',
-#       type: 'mobile',
+# type: 'mobile',
 #       lastActive: 'Active now',
 #       current: true
 #     },
 #     {
 #       id: 'd2',
 #       name: 'MacBook Pro',
-#       type: 'desktop',
+# type: 'desktop',
 #       lastActive: '2 hours ago',
 #       current: false
 #     },
 #     {
 #       id: 'd3',
 #       name: 'iPad Air',
-#       type: 'tablet',
+# type: 'tablet',
 #       lastActive: '1 day ago',
 #       current: false
 #     }

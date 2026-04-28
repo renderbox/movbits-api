@@ -10,24 +10,28 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ('billing', '0001_initial'),
-        ('vendor', '0049_alter_invoice_status'),
+        ("billing", "0001_initial"),
+        ("vendor", "0049_alter_invoice_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='classification',
-            field=models.ManyToManyField(blank=True, to='vendor.taxclassifier'),
+            model_name="product",
+            name="classification",
+            field=models.ManyToManyField(blank=True, to="vendor.taxclassifier"),
         ),
         migrations.AddField(
-            model_name='product',
-            name='offers',
-            field=models.ManyToManyField(blank=True, related_name='products', to='vendor.offer'),
+            model_name="product",
+            name="offers",
+            field=models.ManyToManyField(
+                blank=True, related_name="products", to="vendor.offer"
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='receipts',
-            field=models.ManyToManyField(blank=True, related_name='products', to='vendor.receipt'),
+            model_name="product",
+            name="receipts",
+            field=models.ManyToManyField(
+                blank=True, related_name="products", to="vendor.receipt"
+            ),
         ),
     ]

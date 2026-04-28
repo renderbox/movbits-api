@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import FeatureFlag, Profile, MBUser
+from .models import FeatureFlag, MBUser, Profile
 
 
 @admin.register(MBUser)

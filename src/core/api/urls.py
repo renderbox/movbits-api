@@ -16,12 +16,10 @@ urlpatterns = [
         consent_views.update_user_consent,
         name="consent-update",
     ),
-
     # 2FA / TOTP
     path("2fa/enable", mfa_views.enable_totp, name="2fa-enable"),
     path("2fa/disable", mfa_views.disable_totp, name="2fa-disable"),
     path("2fa/status", mfa_views.totp_status, name="2fa-status"),
-
     # Users
     path("me", views.CurrentUserView.as_view(), name="users-me"),
     path(

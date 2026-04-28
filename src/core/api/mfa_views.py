@@ -1,6 +1,10 @@
 from allauth.mfa.adapter import get_adapter as get_mfa_adapter
 from allauth.mfa.models import Authenticator
-from allauth.mfa.totp.internal.auth import TOTP, generate_totp_secret, validate_totp_code
+from allauth.mfa.totp.internal.auth import (
+    TOTP,
+    generate_totp_secret,
+    validate_totp_code,
+)
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated

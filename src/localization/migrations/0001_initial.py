@@ -8,36 +8,100 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Language',
+            name="Language",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(help_text="BCP-47 language code, e.g. 'en', 'es', 'es-MX'.", max_length=10, unique=True)),
-                ('name', models.CharField(help_text="Native name shown to the user, e.g. 'Español'.", max_length=100)),
-                ('display_name', models.CharField(help_text="English name for internal reference, e.g. 'Spanish'.", max_length=100)),
-                ('flag', models.CharField(blank=True, help_text="Flag emoji, e.g. '🇪🇸'.", max_length=10)),
-                ('is_rtl', models.BooleanField(default=False, help_text='Right-to-left script (Arabic, Hebrew, etc.).')),
-                ('is_active', models.BooleanField(default=True, help_text='Only active languages are returned to clients.')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        help_text="BCP-47 language code, e.g. 'en', 'es', 'es-MX'.",
+                        max_length=10,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Native name shown to the user, e.g. 'Español'.",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "display_name",
+                    models.CharField(
+                        help_text="English name for internal reference, e.g. 'Spanish'.",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "flag",
+                    models.CharField(
+                        blank=True, help_text="Flag emoji, e.g. '🇪🇸'.", max_length=10
+                    ),
+                ),
+                (
+                    "is_rtl",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Right-to-left script (Arabic, Hebrew, etc.).",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Only active languages are returned to clients.",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['display_name'],
+                "ordering": ["display_name"],
             },
         ),
         migrations.CreateModel(
-            name='Translation',
+            name="Translation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(help_text="Dot-separated key, e.g. 'login.title'.", max_length=255)),
-                ('value', models.TextField()),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='translations', to='localization.language')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "key",
+                    models.CharField(
+                        help_text="Dot-separated key, e.g. 'login.title'.",
+                        max_length=255,
+                    ),
+                ),
+                ("value", models.TextField()),
+                (
+                    "language",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="translations",
+                        to="localization.language",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['key'],
-                'unique_together': {('language', 'key')},
+                "ordering": ["key"],
+                "unique_together": {("language", "key")},
             },
         ),
     ]

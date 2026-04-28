@@ -9,6 +9,7 @@ class MovbitsMFAAdapter(DefaultMFAAdapter):
         # SSO-only users (no usable password) skip MFA — the identity
         # provider is already responsible for their authentication security.
         from allauth.socialaccount.models import SocialAccount
+
         if (
             SocialAccount.objects.filter(user=user).exists()
             and not user.has_usable_password()
