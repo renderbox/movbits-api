@@ -21,16 +21,13 @@ if not os.environ.get("DATABASE_URL"):
     )
 
 # ── ALLOWED_HOSTS ─────────────────────────────────────────────────────────────
-# Cloud Run provides the service URL as CLOUD_RUN_SERVICE_URL.
-# Add it automatically alongside any explicit ALLOWED_HOSTS entries.
-_cloud_run_url = os.environ.get("CLOUD_RUN_SERVICE_URL", "")
+# ALLOWED_HOSTS comes from the environment (e.g. "dev.movbits.com").
+# When running on Cloud Run, K_SERVICE is automatically injected — use it to
+# detect the runtime and add .a.run.app so the hashed *.a.run.app URL is
+# accepted without needing to know it at Terraform apply time.
 _allowed = [h for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h]
-if _cloud_run_url:
-    from urllib.parse import urlparse
-
-    _host = urlparse(_cloud_run_url).netloc
-    if _host and _host not in _allowed:
-        _allowed.append(_host)
+if os.environ.get("K_SERVICE"):
+    _allowed.append(".a.run.app")
 ALLOWED_HOSTS = _allowed
 
 # ── Google Cloud Storage (replaces S3 for prod) ───────────────────────────────
