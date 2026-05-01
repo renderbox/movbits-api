@@ -12,3 +12,5 @@ exclude =
 per-file-ignores =
     # Allow unused imports in __init__ files
     __init__.py: F401
+    # Mock data files contain long URLs and description strings
+    */mock_data.py: E501
