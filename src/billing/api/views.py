@@ -230,7 +230,8 @@ class CartView(APIView):
             cart = (
                 profile.get_cart()
             )  # Get or create an active cart (Invoice) for the user
-            # This can return multiple carts if the user has multiple active invoices, so we need to filter by status and get the latest one.
+            # This can return multiple carts if the user has multiple active invoices, so we need to filter by status
+            # and get the latest one.
 
         items = None
         for name in ("order_items", "line_items", "items", "lines", "cart_items"):
@@ -1096,7 +1097,8 @@ class StripeWebhookView(APIView):
 
 class PurchaseCreditsSuccessView(APIView):
     """Confirms a credit purchase and returns the projected new balance.
-    The actual wallet credit happens in the Stripe webhook after payment confirmation."""
+    The actual wallet credit happens in the Stripe webhook after payment confirmation.
+    """
 
     permission_classes = [IsAuthenticated]
 
