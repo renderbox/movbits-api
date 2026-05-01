@@ -17,13 +17,13 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-me-before-production",
 )
 
-AUTH_USER_MODEL = "core.StoryUser"
+AUTH_USER_MODEL = "core.MBUser"
 
 NEW_SHOW_DAYS = int(os.environ.get("NEW_SHOW_DAYS", 14))
 
 # GCP
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID", "")
-EVENTS_BIGQUERY_DATASET = os.environ.get("EVENTS_BIGQUERY_DATASET", "movbits_events_dev")
+EVENTS_BIGQUERY_DATASET = os.environ.get("EVENTS_BIGQUERY_DATASET", "movbits_events")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # Third-party
     "allauth",
     "allauth.account",
+    "allauth.mfa",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.facebook",
@@ -88,6 +89,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "maintenance.middleware.MaintenanceMiddleware",
+    "core.middleware.SuperuserMFARequiredMiddleware",
 ]
 
 ROOT_URLCONF = "movbitsapi.urls"
@@ -123,7 +125,9 @@ if os.environ.get("DATABASE_URL"):
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -176,12 +180,16 @@ AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME", "us-east-1")
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_STATIC_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-AWS_MEDIA_BUCKET_NAME = os.environ.get("AWS_MEDIA_BUCKET_NAME") or AWS_STATIC_BUCKET_NAME
+AWS_MEDIA_BUCKET_NAME = (
+    os.environ.get("AWS_MEDIA_BUCKET_NAME") or AWS_STATIC_BUCKET_NAME
+)
 AWS_QUERYSTRING_AUTH = True
 
 CLOUDFRONT_DOMAIN = os.environ.get("AWS_CLOUDFRONT_DOMAIN", "")
 CLOUDFRONT_KEY_PAIR_ID = os.environ.get("AWS_CLOUDFRONT_KEY_PAIR_ID", "")
-CLOUDFRONT_PRIVATE_KEY = os.environ.get("AWS_CLOUDFRONT_PRIVATE_KEY", "").replace("\\n", "\n")
+CLOUDFRONT_PRIVATE_KEY = os.environ.get("AWS_CLOUDFRONT_PRIVATE_KEY", "").replace(
+    "\\n", "\n"
+)
 CLOUDFRONT_COOKIE_DOMAIN = os.environ.get("AWS_CLOUDFRONT_COOKIE_DOMAIN", "")
 CLOUDFRONT_SIGNED_COOKIE_TTL = int(os.environ.get("AWS_CLOUDFRONT_COOKIE_TTL", "3600"))
 
@@ -229,10 +237,14 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 # ── AllAuth ───────────────────────────────────────────────────────────────────
 ACCOUNT_ADAPTER = "core.accounts.adapter.StoryAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "core.accounts.adapter.StorySocialAccountAdapter"
+MFA_ADAPTER = "core.mfa_adapter.MovbitsMFAAdapter"
+MFA_TOTP_ISSUER = "MovBits"
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
-SPA_BASE_URL = "http://localhost:3000" if DEVELOPMENT_MODE else "https://www.movbits.com"
+SPA_BASE_URL = (
+    "http://localhost:3000" if DEVELOPMENT_MODE else "https://www.movbits.com"
+)
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -258,9 +270,13 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
 _sso_providers_env = os.environ.get("SSO_ENABLED_PROVIDERS", "")
-SSO_ENABLED_PROVIDERS: list = [p.strip() for p in _sso_providers_env.split(",") if p.strip()]
+SSO_ENABLED_PROVIDERS: list = [
+    p.strip() for p in _sso_providers_env.split(",") if p.strip()
+]
 
-LOGIN_REDIRECT_URL = "http://localhost:3000/" if DEVELOPMENT_MODE else "https://www.movbits.com/"
+LOGIN_REDIRECT_URL = (
+    "http://localhost:3000/" if DEVELOPMENT_MODE else "https://www.movbits.com/"
+)
 ACCOUNT_LOGOUT_REDIRECT_URL = LOGIN_REDIRECT_URL
 
 # ── REST Framework ────────────────────────────────────────────────────────────
@@ -345,12 +361,10 @@ VENDOR_COUNTRY_DEFAULT = "US"
 VENDOR_CURRENCY_DEFAULT = "usd"
 
 # ── Integrations ─────────────────────────────────────────────────────────────
-ENCRYPTED_FIELD_KEYS = (
-    os.environ.get(
-        "INTEGRATIONS_ENCRYPTED_FIELD_KEYS",
-        "hUHBFZ9jSBk5uaokc013kVQwDk6RdTkY4CiRPFqFkzc=",
-    ).split(",")
-)
+ENCRYPTED_FIELD_KEYS = os.environ.get(
+    "INTEGRATIONS_ENCRYPTED_FIELD_KEYS",
+    "hUHBFZ9jSBk5uaokc013kVQwDk6RdTkY4CiRPFqFkzc=",
+).split(",")
 
 # ── Video access window ───────────────────────────────────────────────────────
 VIDEO_ACCESS_WINDOW_HOURS = int(os.environ.get("VIDEO_ACCESS_WINDOW_HOURS", 24))

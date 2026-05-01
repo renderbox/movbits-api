@@ -8,21 +8,52 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ViewingHistory',
+            name="ViewingHistory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_video_index', models.PositiveSmallIntegerField(default=0, help_text='1-based index of the last completed video in the episode playlist. 0 means no videos completed yet — start from chapter 1. If last_video_index == chapter_count, the episode is fully watched.')),
-                ('last_video_position', models.PositiveIntegerField(default=0, help_text='Playback position in seconds within the current chapter (last_video_index + 1). Updated as the user watches. Reset to 0 when they move to the next chapter.')),
-                ('progress', models.PositiveSmallIntegerField(default=0, help_text='Percentage watched, 0–100. Derived from last_video_index / chapter_count but stored for fast reads.')),
-                ('watched_at', models.DateTimeField(default=django.utils.timezone.now, help_text='Most recent time the user watched this episode.')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "last_video_index",
+                    models.PositiveSmallIntegerField(
+                        default=0,
+                        help_text="1-based index of the last completed video in the episode playlist. 0 means no videos completed yet — start from chapter 1. If last_video_index == chapter_count, the episode is fully watched.",
+                    ),
+                ),
+                (
+                    "last_video_position",
+                    models.PositiveIntegerField(
+                        default=0,
+                        help_text="Playback position in seconds within the current chapter (last_video_index + 1). Updated as the user watches. Reset to 0 when they move to the next chapter.",
+                    ),
+                ),
+                (
+                    "progress",
+                    models.PositiveSmallIntegerField(
+                        default=0,
+                        help_text="Percentage watched, 0–100. Derived from last_video_index / chapter_count but stored for fast reads.",
+                    ),
+                ),
+                (
+                    "watched_at",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        help_text="Most recent time the user watched this episode.",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-watched_at'],
+                "ordering": ["-watched_at"],
             },
         ),
     ]

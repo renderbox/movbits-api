@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: black
+        run: black --check src/
+
+      - name: isort
+        run: isort --check src/
+
+      - name: flake8
+        run: flake8 src/
+
+      - name: Check for missing migrations
+        run: python manage.py makemigrations --check --dry-run
+        env:
+          DJANGO_SETTINGS_MODULE: movbitsapi.settings.base
+          DJANGO_SECRET_KEY: ci-insecure-key-not-used-in-prod
+
+      - name: pytest
+        run: pytest
+        env:
+          DJANGO_SECRET_KEY: ci-insecure-key-not-used-in-prod

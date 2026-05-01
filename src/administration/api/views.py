@@ -13,10 +13,9 @@ User = get_user_model()
 
 
 def _ip(request) -> str:
-    return (
-        request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
-        or request.META.get("REMOTE_ADDR", "")
-    )
+    return request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[
+        0
+    ].strip() or request.META.get("REMOTE_ADDR", "")
 
 
 # ── Dashboard stats ────────────────────────────────────────────────────────────
@@ -74,7 +73,9 @@ def admin_users_list(request):
     offset = (page - 1) * limit
     qs = qs[offset : offset + limit]  # noqa: E203
 
-    return Response(AdminUserSerializer(qs, many=True, context={"request": request}).data)
+    return Response(
+        AdminUserSerializer(qs, many=True, context={"request": request}).data
+    )
 
 
 @api_view(["PUT"])
@@ -280,7 +281,9 @@ def admin_content_flag(request, content_id):
 @permission_classes([IsAdminUser])
 def admin_content_stats(request):
     # TODO: wire to shows app
-    return Response({"total": 0, "published": 0, "draft": 0, "pending": 0, "byType": {}})
+    return Response(
+        {"total": 0, "published": 0, "draft": 0, "pending": 0, "byType": {}}
+    )
 
 
 @api_view(["GET"])

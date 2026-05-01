@@ -26,8 +26,8 @@ class Team(models.Model):
     sites = models.ManyToManyField(Site, related_name="teams")
     avatar = models.ImageField(
         upload_to="team/", null=True, blank=True
-    )  # TODO: write to a team folder and rename the avatar file to team/<team_id>/avatar.<ext>  Only accept .jpg, .jpeg, .png, .gif.
-    #   Resize to 100x100 and 500x500.  Store the original as well.
+    )  # TODO: store in team/<team_id>/avatar.<ext>, accept jpg/png/gif only,
+    #   resize to 100x100 and 500x500, keep original.
 
     class Meta:
         permissions = [

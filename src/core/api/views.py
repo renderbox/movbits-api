@@ -166,21 +166,47 @@ def signup(request: Request):
 
 @api_view(["POST"])
 def verify_2fa(request: Request):
-    # Mock always succeeds and optionally returns a token
-
-    if not isinstance(request.data, dict):
+    """
+    Verifies a TOTP code for the authenticated user.
+    Used as a step-up check after password login when MFA is required.
+    Full login-flow integration (issuing JWT post-verification) is a
+    separate concern handled by the auth pipeline.
+    """
+    if not request.user.is_authenticated:
         return JsonResponse(
-            {"error": "Invalid request body"}, status=status.HTTP_400_BAD_REQUEST
+            {"detail": "Authentication required."},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
-    code = request.data.get("code")
 
-    # If code is provided, return a token to simulate verification flow
-    if code:
-        # Create a temporary user if none exists for demo
-        user = _make_user()
-        token = f"mock-token-{user['id']}"
-        return JsonResponse({"success": True, "token": token})
-    return JsonResponse({"success": False}, status=status.HTTP_400_BAD_REQUEST)
+    code = (request.data or {}).get("code", "").strip()
+    if not code:
+        return JsonResponse(
+            {"detail": "code is required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    from allauth.mfa.models import Authenticator
+    from allauth.mfa.totp.internal.auth import TOTP
+
+    try:
+        authenticator = Authenticator.objects.get(
+            user=request.user, type=Authenticator.Type.TOTP
+        )
+    except Authenticator.DoesNotExist:
+        return JsonResponse(
+            {"detail": "Two-factor authentication is not configured."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    totp = TOTP(authenticator)
+    if not totp.validate_code(code):
+        return JsonResponse(
+            {"detail": "Invalid code."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    authenticator.record_usage()
+    return JsonResponse({"success": True})
 
 
 # TODO: Password Reset View for users who forgot their password
@@ -296,7 +322,7 @@ class CurrentUserView(APIView):
         role = "member"
 
         # Need to map this to key/value pair like this:
-        # TODO: if a flag does not have permissions, it should be available to all users.  If a flag has permissions, it should only be available to users with those permissions.
+        # TODO: flags without permissions → available to all; flags with permissions → restricted.
         features = {
             flag.key: flag.get_value()
             for flag in FeatureFlag.objects.filter(
@@ -677,7 +703,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h1',
 #       title: 'The Space Chronicles',
-#       type: 'episode',
+# type: 'episode',
 #       thumbnail: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=225&fit=crop',
 #       progress: 75,
 #       duration: '42m',
@@ -688,7 +714,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h2',
 #       title: 'Digital Frontiers',
-#       type: 'movie',
+# type: 'movie',
 #       thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=225&fit=crop',
 #       progress: 100,
 #       duration: '2h 15m',
@@ -697,7 +723,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h3',
 #       title: 'Ocean Mysteries',
-#       type: 'episode',
+# type: 'episode',
 #       thumbnail: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=225&fit=crop',
 #       progress: 30,
 #       duration: '38m',
@@ -708,7 +734,7 @@ def get_devices(request: Request):
 #     {
 #       id: 'h4',
 #       title: 'City of Tomorrow',
-#       type: 'movie',
+# type: 'movie',
 #       thumbnail: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=400&h=225&fit=crop',
 #       progress: 15,
 #       duration: '1h 58m',
@@ -721,21 +747,21 @@ def get_devices(request: Request):
 #       id: 'w1',
 #       title: 'Future Wars',
 #       thumbnail: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&h=300&fit=crop',
-#       type: 'series',
+# type: 'series',
 #       addedDate: '2 days ago'
 #     },
 #     {
 #       id: 'w2',
 #       title: 'Silent Earth',
 #       thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=300&fit=crop',
-#       type: 'movie',
+# type: 'movie',
 #       addedDate: '1 week ago'
 #     },
 #     {
 #       id: 'w3',
 #       title: 'Tech Revolution',
 #       thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=300&fit=crop',
-#       type: 'series',
+# type: 'series',
 #       addedDate: '2 weeks ago'
 #     }
 #   ];
@@ -744,21 +770,21 @@ def get_devices(request: Request):
 #     {
 #       id: 'd1',
 #       name: 'iPhone 15 Pro',
-#       type: 'mobile',
+# type: 'mobile',
 #       lastActive: 'Active now',
 #       current: true
 #     },
 #     {
 #       id: 'd2',
 #       name: 'MacBook Pro',
-#       type: 'desktop',
+# type: 'desktop',
 #       lastActive: '2 hours ago',
 #       current: false
 #     },
 #     {
 #       id: 'd3',
 #       name: 'iPad Air',
-#       type: 'tablet',
+# type: 'tablet',
 #       lastActive: '1 day ago',
 #       current: false
 #     }

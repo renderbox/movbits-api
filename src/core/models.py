@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Permission
 from django.contrib.sites.models import Site
 from django.db import models
@@ -9,7 +10,7 @@ from core.utils import to_lower_camel_case
 from localization.models import Language
 
 
-class StoryUser(AbstractUser):
+class MBUser(AbstractUser):
     username = models.CharField(
         _("username"),
         max_length=150,
@@ -83,9 +84,7 @@ class StoryUser(AbstractUser):
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(
-        StoryUser, on_delete=models.CASCADE, related_name="profiles"
-    )
+    user = models.ForeignKey(MBUser, on_delete=models.CASCADE, related_name="profiles")
     site = models.ForeignKey(Site, on_delete=models.CASCADE, related_name="profiles")
     role = models.CharField(max_length=50, default="member")
     preferences = models.JSONField(default=dict, blank=True)
@@ -137,3 +136,28 @@ class FeatureFlag(models.Model):
             max_length = self._meta.get_field("key").max_length
             self.key = to_lower_camel_case(self.name, max_length=max_length)
         super().save(*args, **kwargs)
+
+
+class ConsentRecord(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="consent_records",
+    )
+    session_key = models.CharField(max_length=40, blank=True, default="")
+    preferences = models.JSONField(default=dict)
+    version = models.CharField(max_length=20, default="1.0")
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        identifier = (
+            self.user.email if self.user_id else self.session_key or "anonymous"
+        )
+        return f"ConsentRecord({identifier}, v{self.version}, {self.created_at})"

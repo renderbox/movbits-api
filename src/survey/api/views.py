@@ -35,7 +35,7 @@ def add_to_interest_list(request):
     email = request.data.get("email")
     interested, created = InterestedUser.objects.get_or_create(
         email=email, site=Site.objects.get(id=1)
-    )  # TODO: handle site properly.  This is a placeholder.  Site ID should be set in middleware from the requesting app.
+    )  # TODO: handle site properly — Site ID should come from middleware.
 
     # print("Adding to interest list:", email, created)
 

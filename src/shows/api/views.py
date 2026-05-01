@@ -464,7 +464,7 @@ def shows_by_category(request):
       id: 'video-1',  # uuid?
       # slug: 'video-1',
       title: 'Big Buck Bunny - Animated Short Film',
-      description: 'A charming animated short film about a giant rabbit who defends a trio of defenseless rodents against two bullying rodents.',
+      description: 'A charming animated short film about a giant rabbit defending defenseless rodents.',
       thumbnail: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&h=450&fit=crop',
       contentType: 'movie',
       visibility: 'public',
@@ -759,7 +759,7 @@ class VideoDetailView(APIView):
 
 
 class VideoURLView(APIView):
-    """Returns a series of responses based on video lock status, user authentication and if the user has purchased the video."""
+    """Returns video access based on lock status, authentication, and purchase state."""
 
     def _get_video(self, video_id):
         filters = Q(slug=video_id)
@@ -1177,7 +1177,7 @@ class ShowsCategoryView(ListAPIView):
 #                 {
 #                     "id": "ep-1-1",
 #                     "title": "Departure Protocol",
-#                     "description": "The crew of the Endeavor prepares for humanity's greatest journey as they leave Earth behind and venture into the unknown depths of space.",
+#                     "description": "The Endeavor crew prepares for humanity's greatest journey.",
 #                     "duration": 3420,  # // 57 minutes
 #                     "rating": 4.7,
 #                     "chapterCount": 8,
@@ -1189,7 +1189,7 @@ class ShowsCategoryView(ListAPIView):
 #                 {
 #                     "id": "ep-1-2",
 #                     "title": "First Contact Protocols",
-#                     "description": "Strange signals from the Proxima Centauri system force the crew to question everything they thought they knew about alien life.",
+#                     "description": "Strange signals force the crew to question what they know about alien life.",
 #                     "duration": 3240,  # // 54 minutes
 #                     "rating": 4.9,
 #                     "chapterCount": 7,
@@ -1201,7 +1201,7 @@ class ShowsCategoryView(ListAPIView):
 #                 {
 #                     "id": "ep-1-3",
 #                     "title": "The Anomaly",
-#                     "description": "A mysterious space-time anomaly threatens to tear the ship apart while revealing secrets about the nature of faster-than-light travel.",
+#                     "description": "A space-time anomaly threatens the ship and reveals FTL secrets.",
 #                     "duration": 3600,  # // 60 minutes
 #                     "rating": 4.8,
 #                     "chapterCount": 9,
@@ -1213,7 +1213,7 @@ class ShowsCategoryView(ListAPIView):
 #                 {
 #                     "id": "ep-1-4",
 #                     "title": "Gravity's Edge",
-#                     "description": "The crew encounters a rogue planet with impossible gravitational properties that defies all known laws of physics.",
+#                     "description": "The crew encounters a rogue planet with impossible gravitational properties.",
 #                     "duration": 3480,  # // 58 minutes
 #                     "rating": 4.6,
 #                     "chapterCount": 8,
@@ -1232,7 +1232,7 @@ class ShowsCategoryView(ListAPIView):
 #                 {
 #                     "id": "ep-2-1",
 #                     "title": "Colonial Dawn",
-#                     "description": "The Endeavor reaches Kepler-442b and begins establishing humanity's first interstellar colony, but the planet holds unexpected dangers.",
+#                     "description": "The Endeavor reaches Kepler-442b to establish humanity's first colony.",
 #                     "duration": 3660,  # // 61 minutes
 #                     "rating": 4.9,
 #                     "chapterCount": 10,
@@ -1244,7 +1244,7 @@ class ShowsCategoryView(ListAPIView):
 #                 {
 #                     "id": "ep-2-2",
 #                     "title": "The Inhabitants",
-#                     "description": "First contact with the planet's indigenous species leads to complex diplomatic challenges and moral dilemmas for the human colonists.",
+#                     "description": "First contact with indigenous species leads to diplomatic challenges.",
 #                     "duration": 3420,  # // 57 minutes
 #                     "rating": 4.8,
 #                     "chapterCount": 8,

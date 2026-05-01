@@ -42,14 +42,26 @@ def add_file(batch, relative_path, file_status=FileStatus.PENDING):
         relative_path=relative_path,
         s3_key=f"{hls_dir}{relative_path}",
         size=1024,
-        content_type="video/mp2t" if relative_path.endswith(".ts") else "application/x-mpegURL",
+        content_type=(
+            "video/mp2t" if relative_path.endswith(".ts") else "application/x-mpegURL"
+        ),
         status=file_status,
     )
 
 
 MANIFEST = [
-    {"filename": "index.m3u8", "relative_path": "index.m3u8", "size": 512, "content_type": "application/x-mpegURL"},
-    {"filename": "seg0.ts", "relative_path": "seg0.ts", "size": 2048, "content_type": "video/mp2t"},
+    {
+        "filename": "index.m3u8",
+        "relative_path": "index.m3u8",
+        "size": 512,
+        "content_type": "application/x-mpegURL",
+    },
+    {
+        "filename": "seg0.ts",
+        "relative_path": "seg0.ts",
+        "size": 2048,
+        "content_type": "video/mp2t",
+    },
 ]
 
 
@@ -64,7 +76,9 @@ class CreateUploadBatchTests(APITestCase):
         self.url = reverse("media_create_batch")
 
     def _post(self, data):
-        with patch("media.api.views._presigned_put_url", return_value=FAKE_PRESIGNED_URL):
+        with patch(
+            "media.api.views._presigned_put_url", return_value=FAKE_PRESIGNED_URL
+        ):
             return self.client.post(self.url, data, format="json")
 
     def test_unauthenticated_returns_403(self):
@@ -88,7 +102,9 @@ class CreateUploadBatchTests(APITestCase):
 
     def test_unknown_video_uuid_returns_404(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({"video_uuid": "00000000-0000-0000-0000-000000000000", "files": MANIFEST})
+        response = self._post(
+            {"video_uuid": "00000000-0000-0000-0000-000000000000", "files": MANIFEST}
+        )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_creates_batch_and_returns_201(self):
@@ -122,11 +138,13 @@ class CreateUploadBatchTests(APITestCase):
 
     def test_batch_name_can_be_set(self):
         self.client.force_authenticate(self.staff)
-        response = self._post({
-            "video_uuid": str(self.video.uuid),
-            "files": MANIFEST,
-            "batch_name": "Season 2 Upload",
-        })
+        response = self._post(
+            {
+                "video_uuid": str(self.video.uuid),
+                "files": MANIFEST,
+                "batch_name": "Season 2 Upload",
+            }
+        )
         self.assertEqual(response.data["batch_name"], "Season 2 Upload")
 
 
@@ -153,7 +171,10 @@ class UploadBatchDetailTests(APITestCase):
 
     def test_unknown_batch_id_returns_404(self):
         self.client.force_authenticate(self.staff)
-        url = reverse("media_batch_detail", kwargs={"batch_id": "00000000-0000-0000-0000-000000000000"})
+        url = reverse(
+            "media_batch_detail",
+            kwargs={"batch_id": "00000000-0000-0000-0000-000000000000"},
+        )
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -183,10 +204,13 @@ class CompleteFileUploadTests(APITestCase):
         self.seg = add_file(self.batch, "seg0.ts")
 
     def _complete_url(self, file_obj):
-        return reverse("media_complete_file", kwargs={
-            "batch_id": self.batch.id,
-            "file_id": file_obj.id,
-        })
+        return reverse(
+            "media_complete_file",
+            kwargs={
+                "batch_id": self.batch.id,
+                "file_id": file_obj.id,
+            },
+        )
 
     def test_unauthenticated_returns_403(self):
         response = self.client.post(self._complete_url(self.m3u8))
@@ -199,10 +223,13 @@ class CompleteFileUploadTests(APITestCase):
 
     def test_unknown_file_returns_404(self):
         self.client.force_authenticate(self.staff)
-        url = reverse("media_complete_file", kwargs={
-            "batch_id": self.batch.id,
-            "file_id": "00000000-0000-0000-0000-000000000000",
-        })
+        url = reverse(
+            "media_complete_file",
+            kwargs={
+                "batch_id": self.batch.id,
+                "file_id": "00000000-0000-0000-0000-000000000000",
+            },
+        )
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -292,5 +319,13 @@ class ListUploadsTests(APITestCase):
         self.client.force_authenticate(self.staff)
         response = self.client.get(self.url)
         f = response.data["files"][0]
-        for field in ["key", "relative_path", "filename", "size", "status", "batch_id", "video_uuid"]:
+        for field in [
+            "key",
+            "relative_path",
+            "filename",
+            "size",
+            "status",
+            "batch_id",
+            "video_uuid",
+        ]:
             self.assertIn(field, f)

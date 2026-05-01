@@ -10,43 +10,133 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('sites', '0002_alter_domain_unique'),
+        ("sites", "0002_alter_domain_unique"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Wallet',
+            name="Wallet",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('credit_type', models.IntegerField(choices=[(1, 'MovBits Credits'), (2, 'MovBits Bonus Credits')], default=1)),
-                ('balance', models.IntegerField(default=0)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('site', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wallets', to='sites.site')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wallets', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "credit_type",
+                    models.IntegerField(
+                        choices=[(1, "MovBits Credits"), (2, "MovBits Bonus Credits")],
+                        default=1,
+                    ),
+                ),
+                ("balance", models.IntegerField(default=0)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "site",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="wallets",
+                        to="sites.site",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="wallets",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WalletTransaction',
+            name="WalletTransaction",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.IntegerField(help_text='Credits added (positive) or deducted (negative).')),
-                ('balance_after', models.IntegerField(help_text='Wallet balance immediately after this transaction.')),
-                ('transaction_type', models.IntegerField(choices=[(1, 'Credit Purchase'), (2, 'Video Unlock'), (3, 'Bonus Grant'), (4, 'Refund'), (5, 'Credit Expiry'), (6, 'Admin Adjustment')])),
-                ('reference_type', models.CharField(blank=True, help_text='Source object type, e.g. "stripe_invoice", "video_receipt", "admin".', max_length=50)),
-                ('reference_id', models.CharField(blank=True, help_text='UUID or PK of the source object.', max_length=255)),
-                ('stripe_payment_intent_id', models.CharField(blank=True, db_index=True, help_text='Stripe PaymentIntent ID, present on CREDIT_PURCHASE transactions.', max_length=255)),
-                ('metadata', models.JSONField(blank=True, default=dict)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('wallet', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='wallet.wallet')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.IntegerField(
+                        help_text="Credits added (positive) or deducted (negative)."
+                    ),
+                ),
+                (
+                    "balance_after",
+                    models.IntegerField(
+                        help_text="Wallet balance immediately after this transaction."
+                    ),
+                ),
+                (
+                    "transaction_type",
+                    models.IntegerField(
+                        choices=[
+                            (1, "Credit Purchase"),
+                            (2, "Video Unlock"),
+                            (3, "Bonus Grant"),
+                            (4, "Refund"),
+                            (5, "Credit Expiry"),
+                            (6, "Admin Adjustment"),
+                        ]
+                    ),
+                ),
+                (
+                    "reference_type",
+                    models.CharField(
+                        blank=True,
+                        help_text='Source object type, e.g. "stripe_invoice", "video_receipt", "admin".',
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "reference_id",
+                    models.CharField(
+                        blank=True,
+                        help_text="UUID or PK of the source object.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "stripe_payment_intent_id",
+                    models.CharField(
+                        blank=True,
+                        db_index=True,
+                        help_text="Stripe PaymentIntent ID, present on CREDIT_PURCHASE transactions.",
+                        max_length=255,
+                    ),
+                ),
+                ("metadata", models.JSONField(blank=True, default=dict)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "wallet",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="transactions",
+                        to="wallet.wallet",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.AddConstraint(
-            model_name='wallet',
-            constraint=models.UniqueConstraint(fields=('site', 'user', 'credit_type'), name='unique_wallet_per_site_user_type'),
+            model_name="wallet",
+            constraint=models.UniqueConstraint(
+                fields=("site", "user", "credit_type"),
+                name="unique_wallet_per_site_user_type",
+            ),
         ),
     ]

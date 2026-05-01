@@ -44,6 +44,11 @@ urlpatterns = [
         views.CustomerPortalView.as_view(),
         name="billing_customer_portal",
     ),
+    path(
+        "summary",
+        views.BillingSummaryView.as_view(),
+        name="billing-summary",
+    ),
     # path("credits/balance", views.credit_balance, name="billing_credit_balance"),
     # # Subscriptions
     # path("subscription", views.get_subscription, name="billing_get_subscription"),
@@ -100,15 +105,5 @@ urlpatterns = [
     #     "refunds/<str:refund_id>",
     #     views.get_refund_status,
     #     name="billing_refund_status",
-    # ),
-    # # Promo & summary
-    # path("promo/apply", views.apply_promo_code, name="billing_apply_promo"),
-    # path("summary", views.get_spending_summary, name="billing_summary"),
-    # # Unlock/pricing
-    # path("unlock", views.unlock_content, name="billing_unlock"),
-    # path(
-    #     "pricing/<str:content_id>",
-    #     views.get_content_pricing,
-    #     name="billing_pricing",
     # ),
 ]

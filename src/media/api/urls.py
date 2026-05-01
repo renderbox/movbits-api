@@ -4,7 +4,11 @@ from . import views
 
 urlpatterns = [
     path("upload-batches/", views.create_upload_batch, name="media_create_batch"),
-    path("upload-batches/<uuid:batch_id>/", views.upload_batch_detail, name="media_batch_detail"),
+    path(
+        "upload-batches/<uuid:batch_id>/",
+        views.upload_batch_detail,
+        name="media_batch_detail",
+    ),
     path(
         "upload-batches/<uuid:batch_id>/files/<uuid:file_id>/complete/",
         views.complete_file_upload,

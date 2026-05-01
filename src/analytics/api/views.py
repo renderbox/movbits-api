@@ -291,8 +291,8 @@ def views_over_time(request):
     """
     Total views over a period of time (7d, 30d, 90d).
     GET /api/v1/analytics/analytics/views-over-time?timeRange=30d
-    NOTE: currently returning mock data with a similar pattern to views, but in production this would be based on actual view data
-    and could have a different pattern (e.g. more spikes around holidays, etc.)
+    NOTE: currently returning mock data. In production this would use actual view data
+    and could have a different pattern (e.g. more spikes around holidays).
     """
     days = _parse_days(request.query_params.get("timeRange", "30d"))
     today = datetime.date.today()
@@ -325,8 +325,8 @@ def revenue_over_time(request):
     """
     Total revenue over a period of time (7d, 30d, 90d).
     GET /api/v1/analytics/analytics/revenue-over-time?timeRange=30d
-    NOTE: currently returning mock data with a similar pattern to views, but in production this would be based on actual revenue data
-    and could have a different pattern (e.g. more spikes around holidays, etc.)
+    NOTE: currently returning mock data. In production this would use actual revenue data
+    and could have a different pattern (e.g. more spikes around holidays).
     """
     days = _parse_days(request.query_params.get("timeRange", "30d"))
     today = datetime.date.today()

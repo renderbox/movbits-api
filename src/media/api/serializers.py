@@ -6,7 +6,15 @@ from ..models import UploadBatch, UploadBatchFile
 class UploadBatchFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UploadBatchFile
-        fields = ["id", "filename", "relative_path", "s3_key", "size", "content_type", "status"]
+        fields = [
+            "id",
+            "filename",
+            "relative_path",
+            "s3_key",
+            "size",
+            "content_type",
+            "status",
+        ]
 
 
 class UploadBatchFileWithUrlSerializer(UploadBatchFileSerializer):
@@ -22,7 +30,15 @@ class UploadBatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadBatch
-        fields = ["id", "batch_name", "videoUuid", "status", "created_at", "updated_at", "files"]
+        fields = [
+            "id",
+            "batch_name",
+            "videoUuid",
+            "status",
+            "created_at",
+            "updated_at",
+            "files",
+        ]
 
 
 class UploadBatchCreateSerializer(UploadBatchSerializer):

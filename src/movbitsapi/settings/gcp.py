@@ -27,6 +27,7 @@ _cloud_run_url = os.environ.get("CLOUD_RUN_SERVICE_URL", "")
 _allowed = [h for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h]
 if _cloud_run_url:
     from urllib.parse import urlparse
+
     _host = urlparse(_cloud_run_url).netloc
     if _host and _host not in _allowed:
         _allowed.append(_host)

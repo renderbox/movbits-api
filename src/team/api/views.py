@@ -48,7 +48,7 @@ class UserTeamListAPIView(APIView):
 # TODO: Get Team View to get team information for the user
 class TeamDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    # TODO: could return a different response when not authenticated (or a team member) and return basic "public" details.
+    # TODO: return basic public details for unauthenticated or non-member requests.
 
     def get(self, request, team_id):
         team = get_object_or_404(Team, uuid=team_id)

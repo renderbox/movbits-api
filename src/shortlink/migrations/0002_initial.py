@@ -9,19 +9,27 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('shortlink', '0001_initial'),
-        ('shows', '0001_initial'),
+        ("shortlink", "0001_initial"),
+        ("shows", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='referrallink',
-            name='show',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='referral_links', to='shows.show'),
+            model_name="referrallink",
+            name="show",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="referral_links",
+                to="shows.show",
+            ),
         ),
         migrations.AddField(
-            model_name='referralclick',
-            name='referral_link',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='clicks', to='shortlink.referrallink'),
+            model_name="referralclick",
+            name="referral_link",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="clicks",
+                to="shortlink.referrallink",
+            ),
         ),
     ]

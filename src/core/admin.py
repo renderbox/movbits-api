@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import FeatureFlag, Profile, StoryUser
+from .models import FeatureFlag, MBUser, Profile
 
 
-@admin.register(StoryUser)
-class StoryUserAdmin(BaseUserAdmin):
+@admin.register(MBUser)
+class MBUserAdmin(BaseUserAdmin):
     # 1) Change form (editing an existing user)
     fieldsets = (
         (None, {"fields": ("username", "password")}),

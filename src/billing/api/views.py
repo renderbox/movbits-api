@@ -1,6 +1,7 @@
 import logging
 
 import stripe
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -8,6 +9,7 @@ from django.db.models import F, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.timezone import now as tz_now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -19,7 +21,7 @@ from vendor.utils import get_site_from_request
 
 from events.emit import TOPIC_PURCHASES, emit
 from events.schemas import CreditPurchasedEvent
-from wallet.models import CreditTypes, Wallet, WalletTransaction
+from wallet.models import CreditTypes, Wallet, WalletTransaction  # noqa: E501
 
 from ..models import Product  # CreditPackage, Receipt, Wallet
 from .serializers import (  # VendorInvoiceSerializer,
@@ -218,7 +220,7 @@ class CartView(APIView):
             site=site
         )  # Make sure the user has a profile for this site
 
-        # get the relevent cart from the POST args.  If none are provided, get the latest cart for the user.  If none exists, create a new cart (Invoice) for the user.
+        # Use cart_id if provided; otherwise get or create the latest active cart for the user.
 
         if cart_id:
             cart = Invoice.objects.filter(
@@ -228,7 +230,8 @@ class CartView(APIView):
             cart = (
                 profile.get_cart()
             )  # Get or create an active cart (Invoice) for the user
-            # This can return multiple carts if the user has multiple active invoices, so we need to filter by status and get the latest one.
+            # This can return multiple carts if the user has multiple active invoices, so we need to filter by status
+            # and get the latest one.
 
         items = None
         for name in ("order_items", "line_items", "items", "lines", "cart_items"):
@@ -315,7 +318,8 @@ class CartView(APIView):
         quantity = request.data.get("quantity")
 
         vendor_logger.info(
-            f"CartView PATCH called with item_uuid={item_uuid} quantity={quantity} by user {request.user.id} at site {request.site.id}"
+            f"CartView PATCH called with item_uuid={item_uuid} quantity={quantity} "
+            f"by user {request.user.id} at site {request.site.id}"
         )
 
         if not item_uuid:
@@ -442,7 +446,8 @@ class CartView(APIView):
         item_uuid = request.data.get("uuid")
 
         vendor_logger.info(
-            f"CartView DELETE called with item_uuid={item_uuid} by user {request.user.id} at site {request.site.id} with data: {request.data}"
+            f"CartView DELETE called with item_uuid={item_uuid} "
+            f"by user {request.user.id} at site {request.site.id} with data: {request.data}"
         )
 
         if not item_uuid:
@@ -512,7 +517,8 @@ class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
 
         vendor_logger.info(
-            f"CreatePaymentIntentView POST called by user {request.user.id} at site {request.site.id} with data: {request.data}"
+            f"CreatePaymentIntentView POST called by user {request.user.id} "
+            f"at site {request.site.id} with data: {request.data}"
         )
 
         # TODO: Check if the user has a Stripe ID on their profile and create one if not.
@@ -534,11 +540,14 @@ class CreatePaymentIntentView(APIView):
         profile, created = request.user.customer_profile.get_or_create(
             site=request.site
         )
-        # vendor_logger.info(f"Customer profile for user {request.user.id} at site {request.site.id}: {profile}, created: {created}")
+        # vendor_logger.info(
+        #     f"Customer profile for user {request.user.id} at site {request.site.id}: {profile}, created: {created}"
+        # )
 
         if created:
             vendor_logger.info(
-                f"Created new customer profile for user {request.user.id} at site {request.site.id} during payment intent creation."
+                f"Created new customer profile for user {request.user.id} "
+                f"at site {request.site.id} during payment intent creation."
             )
             # TODO: log this in a more structured way or create an audit record if needed.
 
@@ -572,7 +581,7 @@ class CreatePaymentIntentView(APIView):
             f"Cart total: {cart_total} {cart_currency}, expected: {expected_total} {expected_currency}"
         )
 
-        # not sure if this will ever happen since the cart should always have totals, but just in case we want to catch it and log it for debugging.
+        # Defensive: cart should always have totals, but guard and log if not.
         if cart_total is None or cart_currency is None:
             return Response(
                 {"detail": "Cart total is unavailable."},
@@ -638,7 +647,8 @@ class CreatePaymentIntentView(APIView):
             # log the intent ID
             # cart.log_transaction(
             #     title="Payment Intent Created",
-            #     message=f"Stripe PaymentIntent {payment_intent.id} created with amount {expected_total} {expected_currency}.",
+            #     message=f"Stripe PaymentIntent {payment_intent.id} created "
+            #             f"with amount {expected_total} {expected_currency}.",
             # )
 
             return Response({"clientSecret": payment_intent.client_secret})
@@ -682,7 +692,8 @@ class OneClickPurchaseView(APIView):
         )
         if not offer_uuid:
             vendor_logger.info(
-                f"OneClickPurchaseView POST called by user {request.user.id} at site {request.site.id} with data: {request.data}, BAD REQUEST"
+                f"OneClickPurchaseView POST called by user {request.user.id} "
+                f"at site {request.site.id} with data: {request.data}, BAD REQUEST"
             )
             return Response(
                 {"detail": "Missing offer_uuid."},
@@ -711,7 +722,7 @@ class OneClickPurchaseView(APIView):
             offer
         )  # Add the offer to the cart (Invoice), which creates an InvoiceItem and updates totals
 
-        # Set the cart's order date to now, since this is a one-click purchase and we want to track when the purchase was initiated.
+        # Set order date so we can track when the one-click purchase was initiated.
         cart.ordered_date = timezone.now()
 
         offer_product = offer.products.first() if hasattr(offer, "products") else None
@@ -747,7 +758,7 @@ class OneClickPurchaseView(APIView):
         )
         expected_currency = str(expected_currency).lower()
 
-        # Need to calculate taxes and total for the cart before creating the payment intent, since Stripe expects the total amount to be charged.
+        # Calculate taxes before creating the payment intent — Stripe expects the final total.
         # cart.calculate_taxes()
 
         stripe_customer_id = _get_or_create_stripe_customer(request.user)
@@ -1085,7 +1096,9 @@ class StripeWebhookView(APIView):
 
 
 class PurchaseCreditsSuccessView(APIView):
-    """Endpoint to purchase credits by adding a credit package to the user's cart and creating a payment intent for the cart total."""
+    """Confirms a credit purchase and returns the projected new balance.
+    The actual wallet credit happens in the Stripe webhook after payment confirmation.
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -1152,7 +1165,8 @@ class PurchaseCreditsSuccessView(APIView):
 
         # Log the results
         stripe_logger.info(
-            f"Credits purchased successfully, added {credits_added} credits to user {request.user.id}, new balance: {new_balance}, cart ID: {cart_id}",
+            f"Credits purchased successfully, added {credits_added} credits "
+            f"to user {request.user.id}, new balance: {new_balance}, cart ID: {cart_id}",
             extra={
                 "success": True,
                 "creditsAdded": credits_added,
@@ -1165,7 +1179,7 @@ class PurchaseCreditsSuccessView(APIView):
         return Response(
             {
                 "success": True,
-                "openingBalance": opening_balance,  # used for display in the UI since the real confirmation is in the webhook
+                "openingBalance": opening_balance,  # display only; wallet credited by webhook
                 "creditsAdded": credits_added,
                 "newBalance": new_balance,
             }
@@ -1404,6 +1418,63 @@ class PurchaseCreditsSuccessView(APIView):
 #             "remainingCredits": USER_BALANCES["default"],
 #         }
 #     )
+
+
+class BillingSummaryView(APIView):
+    """
+    GET /api/v1/billing/summary?period=month|quarter|year
+
+    Returns real-money spending totals aggregated from CREDIT_PURCHASE
+    WalletTransactions. The Stripe webhook stores amount_received (minor
+    units, e.g. cents) in metadata, so results are converted to dollars.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    _PERIODS = {
+        "month": relativedelta(months=1),
+        "quarter": relativedelta(months=3),
+        "year": relativedelta(years=1),
+    }
+
+    def get(self, request):
+        period = request.query_params.get("period", "month")
+        delta = self._PERIODS.get(period, self._PERIODS["month"])
+        since = tz_now() - delta
+
+        purchases = WalletTransaction.objects.filter(
+            wallet__user=request.user,
+            transaction_type=WalletTransaction.TransactionType.CREDIT_PURCHASE,
+            created_at__gte=since,
+        )
+
+        total_cents = 0
+        transactions = []
+        for txn in purchases.order_by("-created_at"):
+            cents = txn.metadata.get("amount_received") or 0
+            try:
+                cents = int(cents)
+            except (TypeError, ValueError):
+                cents = 0
+            total_cents += cents
+            transactions.append(
+                {
+                    "date": txn.created_at.isoformat(),
+                    "amount": round(cents / 100, 2),
+                    "currency": txn.metadata.get("currency", "usd"),
+                    "credits": txn.amount,
+                    "reference_id": txn.reference_id,
+                }
+            )
+
+        return Response(
+            {
+                "period": period,
+                "total": round(total_cents / 100, 2),
+                "currency": "usd",
+                "transactions": transactions,
+            }
+        )
 
 
 # @api_view(["GET"])

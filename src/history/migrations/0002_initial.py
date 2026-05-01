@@ -10,24 +10,32 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('history', '0001_initial'),
-        ('shows', '0001_initial'),
+        ("history", "0001_initial"),
+        ("shows", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='viewinghistory',
-            name='episode',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='viewing_history', to='shows.episode'),
+            model_name="viewinghistory",
+            name="episode",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="viewing_history",
+                to="shows.episode",
+            ),
         ),
         migrations.AddField(
-            model_name='viewinghistory',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='viewing_history', to=settings.AUTH_USER_MODEL),
+            model_name="viewinghistory",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="viewing_history",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='viewinghistory',
-            unique_together={('user', 'episode')},
+            name="viewinghistory",
+            unique_together={("user", "episode")},
         ),
     ]

@@ -46,7 +46,9 @@ def _presigned_put_url(s3_key, content_type):
 
 def _pick_entry_point(batch):
     """Return the filename of the top-level .m3u8 (the HLS entry point)."""
-    m3u8_files = batch.files.filter(filename__endswith=".m3u8").order_by("relative_path")
+    m3u8_files = batch.files.filter(filename__endswith=".m3u8").order_by(
+        "relative_path"
+    )
     root_level = [f for f in m3u8_files if "/" not in f.relative_path]
     candidates = root_level or list(m3u8_files)
     return candidates[0].filename if candidates else None
@@ -71,16 +73,22 @@ def create_upload_batch(request):
 
     video_uuid = request.data.get("video_uuid")
     if not video_uuid:
-        return Response({"detail": "video_uuid is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "video_uuid is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         video = Video.objects.get(uuid=video_uuid)
     except Video.DoesNotExist:
-        return Response({"detail": "Video not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Video not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
     files_data = request.data.get("files", [])
     if not files_data:
-        return Response({"detail": "files list is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "files list is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     batch = UploadBatch.objects.create(
         video=video,
@@ -112,7 +120,9 @@ def create_upload_batch(request):
         file_obj.upload_url = _presigned_put_url(file_obj.s3_key, file_obj.content_type)
 
     batch._prefetched_objects_cache = {"files": file_objs}
-    return Response(UploadBatchCreateSerializer(batch).data, status=status.HTTP_201_CREATED)
+    return Response(
+        UploadBatchCreateSerializer(batch).data, status=status.HTTP_201_CREATED
+    )
 
 
 # ── Batch detail ──────────────────────────────────────────────────────────────
@@ -168,7 +178,9 @@ def list_uploads(request):
     if err := _require_staff(request):
         return err
 
-    qs = UploadBatchFile.objects.select_related("batch__video").order_by("-batch__created_at", "relative_path")
+    qs = UploadBatchFile.objects.select_related("batch__video").order_by(
+        "-batch__created_at", "relative_path"
+    )
 
     video_uuid = request.query_params.get("video_uuid")
     if video_uuid:

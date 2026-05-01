@@ -415,8 +415,7 @@ class CreditCartSerializer(serializers.ModelSerializer):
         total = 0
 
         for item in obj.order_items.all():
-            # TODO: If the order item has a "credits" add it to the total multiplied by the "quantity", otherwise ignore.
-            #       Keep it simple.
+            # TODO: sum credits * quantity per order item, ignore items without credits.
 
             quantity = getattr(item, "quantity", None) or 1
             product = getattr(item, "product", None)

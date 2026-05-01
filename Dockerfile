@@ -1,46 +1,36 @@
-FROM python:3.13-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app/src
-
-WORKDIR /app
+# ── Stage 1: build ────────────────────────────────────────────────────────────
+FROM python:3.13-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
     gcc \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
+
+ENV VENV=/opt/venv
+RUN python -m venv $VENV
+ENV PATH="$VENV/bin:$PATH"
 
 COPY pyproject.toml ./
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-    "django>=6.0.4,<7.0" \
-    "django-allauth>=65.7.0,<66.0.0" \
-    "pillow>=11.2.1,<12.0.0" \
-    "gunicorn" \
-    "psycopg2-binary" \
-    "dj-database-url" \
-    "boto3" \
-    "cryptography>=43.0.0" \
-    "django-storages[s3]>=1.14.6,<2.0.0" \
-    "python-dotenv>=1.1.0,<2.0.0" \
-    "whitenoise>=6.9.0,<7.0.0" \
-    "redis>=6.2.0,<7.0.0" \
-    "stripe>=12.2.0,<13.0.0" \
-    "django-anymail>=13.0,<14.0" \
-    "django-cors-headers>=4.7.0,<5.0.0" \
-    "djangorestframework>=3.16.0,<4.0.0" \
-    "djangorestframework-simplejwt>=5.5.0,<6.0.0" \
-    "dj-rest-auth>=7.0.0,<8.0.0" \
-    "drf-spectacular[sidecar]>=0.28.0,<0.29.0" \
-    "django-vendor>=0.7.0,<0.8.0" \
-    "django-site-configs>=0.4.0,<0.5.0" \
-    "django-integrations>=0.4.0,<0.5.0" \
-    "python-json-logger>=4.0.0,<5.0.0" \
-    "google-cloud-pubsub>=2.26.0,<3.0.0" \
-    "google-cloud-bigquery>=3.0.0,<4.0.0" \
-    "django-invitations>=2.0.0,<3.0.0"
+    pip install --no-cache-dir .
 
+# ── Stage 2: runtime ──────────────────────────────────────────────────────────
+FROM python:3.13-slim AS runtime
+
+ENV VENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src
+
+# libpq is needed at runtime by psycopg2-binary
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /opt/venv /opt/venv
+
+WORKDIR /app
 COPY src/ ./src/
 COPY manage.py ./
 

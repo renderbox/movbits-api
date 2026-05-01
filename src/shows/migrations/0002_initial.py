@@ -10,103 +10,146 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('shows', '0001_initial'),
-        ('team', '0001_initial'),
+        ("shows", "0001_initial"),
+        ("team", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='show',
-            name='team',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='team.team'),
+            model_name="show",
+            name="team",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="team.team"
+            ),
         ),
         migrations.AddField(
-            model_name='season',
-            name='show',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shows.show'),
+            model_name="season",
+            name="show",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shows.show"
+            ),
         ),
         migrations.AddField(
-            model_name='revsharedeal',
-            name='show',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rev_share_deals', to='shows.show'),
+            model_name="revsharedeal",
+            name="show",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="rev_share_deals",
+                to="shows.show",
+            ),
         ),
         migrations.AddField(
-            model_name='episode',
-            name='show',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shows.show'),
+            model_name="episode",
+            name="show",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shows.show"
+            ),
         ),
         migrations.AddField(
-            model_name='show',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='shows.tag'),
+            model_name="show",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="shows.tag"),
         ),
         migrations.AddField(
-            model_name='season',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='shows.tag'),
+            model_name="season",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="shows.tag"),
         ),
         migrations.AddField(
-            model_name='episode',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='shows.tag'),
+            model_name="episode",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="shows.tag"),
         ),
         migrations.AddField(
-            model_name='video',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='shows.tag'),
+            model_name="video",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="shows.tag"),
         ),
         migrations.AddField(
-            model_name='episodevideo',
-            name='video',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shows.video'),
+            model_name="episodevideo",
+            name="video",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="shows.video"
+            ),
         ),
         migrations.AddField(
-            model_name='episode',
-            name='playlist',
-            field=models.ManyToManyField(through='shows.EpisodeVideo', to='shows.video'),
+            model_name="episode",
+            name="playlist",
+            field=models.ManyToManyField(
+                through="shows.EpisodeVideo", to="shows.video"
+            ),
         ),
         migrations.AddField(
-            model_name='videorating',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video_ratings', to=settings.AUTH_USER_MODEL),
+            model_name="videorating",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="video_ratings",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='videorating',
-            name='video',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to='shows.video'),
+            model_name="videorating",
+            name="video",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ratings",
+                to="shows.video",
+            ),
         ),
         migrations.AddField(
-            model_name='videoreceipt',
-            name='episode',
-            field=models.ForeignKey(help_text='The episode this receipt is attached to', on_delete=django.db.models.deletion.CASCADE, to='shows.episode'),
+            model_name="videoreceipt",
+            name="episode",
+            field=models.ForeignKey(
+                help_text="The episode this receipt is attached to",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="shows.episode",
+            ),
         ),
         migrations.AddField(
-            model_name='videoreceipt',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video_receipts', to=settings.AUTH_USER_MODEL),
+            model_name="videoreceipt",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="video_receipts",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='videoreceipt',
-            name='video',
-            field=models.ForeignKey(help_text='The specific video this receipt is for', on_delete=django.db.models.deletion.CASCADE, related_name='receipts', to='shows.video'),
+            model_name="videoreceipt",
+            name="video",
+            field=models.ForeignKey(
+                help_text="The specific video this receipt is for",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="receipts",
+                to="shows.video",
+            ),
         ),
         migrations.AddField(
-            model_name='watchlist',
-            name='show',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='watchlisted_by', to='shows.show'),
+            model_name="watchlist",
+            name="show",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="watchlisted_by",
+                to="shows.show",
+            ),
         ),
         migrations.AddField(
-            model_name='watchlist',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='watchlist', to=settings.AUTH_USER_MODEL),
+            model_name="watchlist",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="watchlist",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='videorating',
-            unique_together={('user', 'video')},
+            name="videorating",
+            unique_together={("user", "video")},
         ),
         migrations.AlterUniqueTogether(
-            name='watchlist',
-            unique_together={('user', 'show')},
+            name="watchlist",
+            unique_together={("user", "show")},
         ),
     ]
