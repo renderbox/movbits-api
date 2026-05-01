@@ -11,7 +11,8 @@ RUN python -m venv $VENV
 ENV PATH="$VENV/bin:$PATH"
 
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN mkdir -p src && \
+    pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .
 
 # ── Stage 2: runtime ──────────────────────────────────────────────────────────
