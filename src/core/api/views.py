@@ -322,7 +322,7 @@ class CurrentUserView(APIView):
         role = "member"
 
         # Need to map this to key/value pair like this:
-        # TODO: if a flag does not have permissions, it should be available to all users.  If a flag has permissions, it should only be available to users with those permissions.
+        # TODO: flags without permissions → available to all; flags with permissions → restricted.
         features = {
             flag.key: flag.get_value()
             for flag in FeatureFlag.objects.filter(
