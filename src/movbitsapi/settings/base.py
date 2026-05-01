@@ -23,9 +23,7 @@ NEW_SHOW_DAYS = int(os.environ.get("NEW_SHOW_DAYS", 14))
 
 # GCP
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID", "")
-EVENTS_BIGQUERY_DATASET = os.environ.get(
-    "EVENTS_BIGQUERY_DATASET", "movbits_events_dev"
-)
+EVENTS_BIGQUERY_DATASET = os.environ.get("EVENTS_BIGQUERY_DATASET", "movbits_events")
 
 INSTALLED_APPS = [
     "django.contrib.admin",

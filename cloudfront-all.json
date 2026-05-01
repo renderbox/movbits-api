@@ -1,0 +1,347 @@
+{
+    "DistributionList": {
+        "Items": [
+            {
+                "Id": "E3D7RG7OEA5YKM",
+                "ARN": "arn:aws:cloudfront::223204576605:distribution/E3D7RG7OEA5YKM",
+                "ETag": "E2Z4GDJFZMVIL0",
+                "Status": "Deployed",
+                "LastModifiedTime": "2026-03-26T13:55:42.532000+00:00",
+                "DomainName": "d2o0wgv84qhm1.cloudfront.net",
+                "Aliases": {
+                    "Quantity": 1,
+                    "Items": [
+                        "beta.movbits.com"
+                    ]
+                },
+                "Origins": {
+                    "Quantity": 1,
+                    "Items": [
+                        {
+                            "Id": "dev.movbits.com.s3.us-east-1.amazonaws.com-mf47azov331",
+                            "DomainName": "dev.movbits.com.s3.us-east-1.amazonaws.com",
+                            "OriginPath": "",
+                            "CustomHeaders": {
+                                "Quantity": 0
+                            },
+                            "S3OriginConfig": {
+                                "OriginAccessIdentity": "",
+                                "OriginReadTimeout": 30
+                            },
+                            "ConnectionAttempts": 3,
+                            "ConnectionTimeout": 10,
+                            "OriginShield": {
+                                "Enabled": false
+                            },
+                            "OriginAccessControlId": "EVNQBVOCCAS66"
+                        }
+                    ]
+                },
+                "OriginGroups": {
+                    "Quantity": 0
+                },
+                "DefaultCacheBehavior": {
+                    "TargetOriginId": "dev.movbits.com.s3.us-east-1.amazonaws.com-mf47azov331",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "redirect-to-https",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": true,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+                    "GrpcConfig": {
+                        "Enabled": false
+                    }
+                },
+                "CacheBehaviors": {
+                    "Quantity": 1,
+                    "Items": [
+                        {
+                            "PathPattern": "/assets/*",
+                            "TargetOriginId": "dev.movbits.com.s3.us-east-1.amazonaws.com-mf47azov331",
+                            "TrustedSigners": {
+                                "Enabled": false,
+                                "Quantity": 0
+                            },
+                            "TrustedKeyGroups": {
+                                "Enabled": false,
+                                "Quantity": 0
+                            },
+                            "ViewerProtocolPolicy": "redirect-to-https",
+                            "AllowedMethods": {
+                                "Quantity": 2,
+                                "Items": [
+                                    "HEAD",
+                                    "GET"
+                                ],
+                                "CachedMethods": {
+                                    "Quantity": 2,
+                                    "Items": [
+                                        "HEAD",
+                                        "GET"
+                                    ]
+                                }
+                            },
+                            "SmoothStreaming": false,
+                            "Compress": true,
+                            "LambdaFunctionAssociations": {
+                                "Quantity": 0
+                            },
+                            "FunctionAssociations": {
+                                "Quantity": 0
+                            },
+                            "FieldLevelEncryptionId": "",
+                            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                            "GrpcConfig": {
+                                "Enabled": false
+                            }
+                        }
+                    ]
+                },
+                "CustomErrorResponses": {
+                    "Quantity": 2,
+                    "Items": [
+                        {
+                            "ErrorCode": 403,
+                            "ResponsePagePath": "/index.html",
+                            "ResponseCode": "200",
+                            "ErrorCachingMinTTL": 0
+                        },
+                        {
+                            "ErrorCode": 404,
+                            "ResponsePagePath": "/index.html",
+                            "ResponseCode": "200",
+                            "ErrorCachingMinTTL": 0
+                        }
+                    ]
+                },
+                "Comment": "",
+                "PriceClass": "PriceClass_All",
+                "Enabled": true,
+                "ViewerCertificate": {
+                    "CloudFrontDefaultCertificate": false,
+                    "ACMCertificateArn": "arn:aws:acm:us-east-1:223204576605:certificate/00fd1bc4-b8ac-41ca-8ce3-2b6d97f101be",
+                    "SSLSupportMethod": "sni-only",
+                    "MinimumProtocolVersion": "TLSv1.2_2021",
+                    "Certificate": "arn:aws:acm:us-east-1:223204576605:certificate/00fd1bc4-b8ac-41ca-8ce3-2b6d97f101be",
+                    "CertificateSource": "acm"
+                },
+                "Restrictions": {
+                    "GeoRestriction": {
+                        "RestrictionType": "whitelist",
+                        "Quantity": 1,
+                        "Items": [
+                            "US"
+                        ]
+                    }
+                },
+                "WebACLId": "",
+                "HttpVersion": "HTTP2",
+                "IsIPV6Enabled": true,
+                "AliasICPRecordals": [
+                    {
+                        "CNAME": "beta.movbits.com",
+                        "ICPRecordalStatus": "APPROVED"
+                    }
+                ],
+                "Staging": false,
+                "ConnectionMode": "direct"
+            },
+            {
+                "Id": "EFZT3TZJP99PE",
+                "ARN": "arn:aws:cloudfront::223204576605:distribution/EFZT3TZJP99PE",
+                "ETag": "E2WMBHJ5SKJ83W",
+                "Status": "Deployed",
+                "LastModifiedTime": "2025-11-23T01:33:12.718000+00:00",
+                "DomainName": "d1y1ekbs2lehd4.cloudfront.net",
+                "Aliases": {
+                    "Quantity": 1,
+                    "Items": [
+                        "www.movbits.com"
+                    ]
+                },
+                "Origins": {
+                    "Quantity": 1,
+                    "Items": [
+                        {
+                            "Id": "www.movbits.com.s3.us-east-1.amazonaws.com-mhz4x1jozs9",
+                            "DomainName": "www.movbits.com.s3.us-east-1.amazonaws.com",
+                            "OriginPath": "",
+                            "CustomHeaders": {
+                                "Quantity": 0
+                            },
+                            "S3OriginConfig": {
+                                "OriginAccessIdentity": "",
+                                "OriginReadTimeout": 30
+                            },
+                            "ConnectionAttempts": 3,
+                            "ConnectionTimeout": 10,
+                            "OriginShield": {
+                                "Enabled": false
+                            },
+                            "OriginAccessControlId": "ENPCZG61R7J2P"
+                        }
+                    ]
+                },
+                "OriginGroups": {
+                    "Quantity": 0
+                },
+                "DefaultCacheBehavior": {
+                    "TargetOriginId": "www.movbits.com.s3.us-east-1.amazonaws.com-mhz4x1jozs9",
+                    "TrustedSigners": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "TrustedKeyGroups": {
+                        "Enabled": false,
+                        "Quantity": 0
+                    },
+                    "ViewerProtocolPolicy": "redirect-to-https",
+                    "AllowedMethods": {
+                        "Quantity": 2,
+                        "Items": [
+                            "HEAD",
+                            "GET"
+                        ],
+                        "CachedMethods": {
+                            "Quantity": 2,
+                            "Items": [
+                                "HEAD",
+                                "GET"
+                            ]
+                        }
+                    },
+                    "SmoothStreaming": false,
+                    "Compress": true,
+                    "LambdaFunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FunctionAssociations": {
+                        "Quantity": 0
+                    },
+                    "FieldLevelEncryptionId": "",
+                    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+                    "GrpcConfig": {
+                        "Enabled": false
+                    }
+                },
+                "CacheBehaviors": {
+                    "Quantity": 1,
+                    "Items": [
+                        {
+                            "PathPattern": "/assets/*",
+                            "TargetOriginId": "www.movbits.com.s3.us-east-1.amazonaws.com-mhz4x1jozs9",
+                            "TrustedSigners": {
+                                "Enabled": false,
+                                "Quantity": 0
+                            },
+                            "TrustedKeyGroups": {
+                                "Enabled": false,
+                                "Quantity": 0
+                            },
+                            "ViewerProtocolPolicy": "redirect-to-https",
+                            "AllowedMethods": {
+                                "Quantity": 2,
+                                "Items": [
+                                    "HEAD",
+                                    "GET"
+                                ],
+                                "CachedMethods": {
+                                    "Quantity": 2,
+                                    "Items": [
+                                        "HEAD",
+                                        "GET"
+                                    ]
+                                }
+                            },
+                            "SmoothStreaming": false,
+                            "Compress": true,
+                            "LambdaFunctionAssociations": {
+                                "Quantity": 0
+                            },
+                            "FunctionAssociations": {
+                                "Quantity": 0
+                            },
+                            "FieldLevelEncryptionId": "",
+                            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                            "GrpcConfig": {
+                                "Enabled": false
+                            }
+                        }
+                    ]
+                },
+                "CustomErrorResponses": {
+                    "Quantity": 2,
+                    "Items": [
+                        {
+                            "ErrorCode": 403,
+                            "ResponsePagePath": "/index.html",
+                            "ResponseCode": "200",
+                            "ErrorCachingMinTTL": 0
+                        },
+                        {
+                            "ErrorCode": 404,
+                            "ResponsePagePath": "/index.html",
+                            "ResponseCode": "200",
+                            "ErrorCachingMinTTL": 0
+                        }
+                    ]
+                },
+                "Comment": "",
+                "PriceClass": "PriceClass_All",
+                "Enabled": true,
+                "ViewerCertificate": {
+                    "CloudFrontDefaultCertificate": false,
+                    "ACMCertificateArn": "arn:aws:acm:us-east-1:223204576605:certificate/cf51fe0c-3773-43fe-ac5d-8b96dc428d67",
+                    "SSLSupportMethod": "sni-only",
+                    "MinimumProtocolVersion": "TLSv1.3_2025",
+                    "Certificate": "arn:aws:acm:us-east-1:223204576605:certificate/cf51fe0c-3773-43fe-ac5d-8b96dc428d67",
+                    "CertificateSource": "acm"
+                },
+                "Restrictions": {
+                    "GeoRestriction": {
+                        "RestrictionType": "none",
+                        "Quantity": 0
+                    }
+                },
+                "WebACLId": "arn:aws:wafv2:us-east-1:223204576605:global/webacl/CreatedByCloudFront-314d05f0/fe8a8602-1f17-4444-a626-9250bfdb0c8a",
+                "HttpVersion": "HTTP2",
+                "IsIPV6Enabled": true,
+                "AliasICPRecordals": [
+                    {
+                        "CNAME": "www.movbits.com",
+                        "ICPRecordalStatus": "APPROVED"
+                    }
+                ],
+                "Staging": false,
+                "ConnectionMode": "direct"
+            }
+        ]
+    }
+}

@@ -1,0 +1,108 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGION: us-east1
+  IMAGE: us-east1-docker.pkg.dev/movbits-shared/movbits/api
+
+jobs:
+  # ── Build & push ─────────────────────────────────────────────────────────────
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # required for WIF
+
+    outputs:
+      sha_tag: ${{ steps.meta.outputs.sha_tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.CICD_SA_EMAIL }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Compute image tag
+        id: meta
+        run: echo "sha_tag=sha-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.meta.outputs.sha_tag }}
+            ${{ env.IMAGE }}:dev
+          # Use the mutable :dev tag as a layer cache source to speed up builds
+          cache-from: type=registry,ref=${{ env.IMAGE }}:dev
+          cache-to: type=inline
+
+  # ── Deploy to dev ─────────────────────────────────────────────────────────────
+  deploy-dev:
+    name: Deploy → dev
+    needs: build
+    runs-on: ubuntu-latest
+    environment: dev  # no approval gate; auto-deploys on every merge to main
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.CICD_SA_EMAIL }}
+
+      - name: Deploy to Cloud Run (dev)
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: movbits-api
+          image: ${{ env.IMAGE }}:${{ needs.build.outputs.sha_tag }}
+          region: ${{ env.REGION }}
+          project_id: ${{ vars.DEV_PROJECT_ID }}
+
+  # ── Promote to prod ───────────────────────────────────────────────────────────
+  deploy-prod:
+    name: Deploy → prod
+    needs: [build, deploy-dev]
+    runs-on: ubuntu-latest
+    environment: prod  # requires manual approval from a reviewer in GitHub
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.CICD_SA_EMAIL }}
+
+      - name: Retag image as :latest
+        run: |
+          gcloud artifacts docker tags add \
+            "${{ env.IMAGE }}:${{ needs.build.outputs.sha_tag }}" \
+            "${{ env.IMAGE }}:latest"
+
+      - name: Deploy to Cloud Run (prod)
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: movbits-api
+          image: ${{ env.IMAGE }}:${{ needs.build.outputs.sha_tag }}
+          region: ${{ env.REGION }}
+          project_id: ${{ vars.PROD_PROJECT_ID }}
