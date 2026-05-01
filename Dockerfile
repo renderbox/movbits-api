@@ -34,6 +34,8 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
 COPY src/ ./src/
 COPY manage.py ./
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
 RUN DJANGO_SETTINGS_MODULE=movbitsapi.settings.prod \
     DATABASE_URL=sqlite:////tmp/build.db \
@@ -41,12 +43,4 @@ RUN DJANGO_SETTINGS_MODULE=movbitsapi.settings.prod \
 
 EXPOSE 8080
 
-CMD exec gunicorn \
-    --bind 0.0.0.0:8080 \
-    --workers 2 \
-    --threads 4 \
-    --worker-class gthread \
-    --timeout 30 \
-    --access-logfile - \
-    --error-logfile - \
-    movbitsapi.wsgi:application
+CMD ["./entrypoint.sh"]
