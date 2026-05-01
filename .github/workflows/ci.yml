@@ -35,6 +35,13 @@ jobs:
           DJANGO_SETTINGS_MODULE: movbitsapi.settings.base
           DJANGO_SECRET_KEY: ci-insecure-key-not-used-in-prod
 
+      - name: Check migrations apply cleanly
+        run: python manage.py migrate --noinput
+        env:
+          DJANGO_SETTINGS_MODULE: movbitsapi.settings.base
+          DJANGO_SECRET_KEY: ci-insecure-key-not-used-in-prod
+          DATABASE_URL: sqlite:////tmp/ci-migrate.db
+
       - name: pytest
         run: pytest
         env:
